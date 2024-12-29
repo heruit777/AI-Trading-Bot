@@ -1,0 +1,8 @@
+asyncio>=3.4.3
+fastapi[standard]>=0.115.6
+httpx>=0.28.1
+protobuf>=5.29.2
+python-dotenv>=1.0.1
+setuptools>=75.6.0
+upstox-python-sdk>=2.9.0
+websockets>=14.1
