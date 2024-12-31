@@ -100,31 +100,129 @@
 
 # To fetch historical candle data of a particular instrument at a specific interval and save it in csv file
 
-import httpx
-import csv
-from config import instrument_keys
+# import httpx
+# import csv
+# from config import instrument_keys
 
 
-instrument_name = "Reliance"
-interval = "day"
-from_date = "2024-12-27"
-to_date = "2022-12-27"
-url = f'https://api.upstox.com/v2/historical-candle/{instrument_keys[instrument_name]}/{interval}/{from_date}/{to_date}'
-headers = {
-    'Accept': 'application/json',
-}
+# instrument_name = "Reliance"
+# interval = "day"
+# from_date = "2024-12-27"
+# to_date = "2022-12-27"
+# url = f'https://api.upstox.com/v2/historical-candle/{instrument_keys[instrument_name]}/{interval}/{from_date}/{to_date}'
+# headers = {
+#     'Accept': 'application/json',
+# }
 
-response = httpx.get(url, headers=headers)
-if response.status_code == 200:
-    data = response.json()
-    candles = data["data"]["candles"]
-    column_names = ["Timestamp", "Open", "High", "Low", "Close", "Volume", "Open Interest"]
+# response = httpx.get(url, headers=headers)
+# if response.status_code == 200:
+#     data = response.json()
+#     candles = data["data"]["candles"]
+#     column_names = ["Timestamp", "Open", "High", "Low", "Close", "Volume", "Open Interest"]
 
-    with open(f'{instrument_name}_{interval}_{from_date}_{to_date}.csv', mode='w', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow(column_names)
-        writer.writerows(candles)
-    print('Data written successfully')
+#     with open(f'{instrument_name}_{interval}_{from_date}_{to_date}.csv', mode='w', newline='') as file:
+#         writer = csv.writer(file)
+#         writer.writerow(column_names)
+#         writer.writerows(candles)
+#     print('Data written successfully')
     
-else:
-    print(f"Error: {response.status_code} - {response.text}")
+# else:
+#     print(f"Error: {response.status_code} - {response.text}")
+
+# connect to Redis
+# import redis
+
+# redis_server = redis.Redis(host="localhost", port="6379")
+# redis_server.set(name='foo', value='bar')
+
+# print('Value set, retrieve it')
+
+# value = redis_server.get('foo')
+# print(f'Value for foo is {value}')
+
+# from decimal import Decimal
+
+# balance = 0.1 * (2/100)
+# # balance = Decimal(str(balance))
+# # distance = Decimal('0.1')
+# distance = 0.1
+# ans = round(balance+distance, 4)
+# ans += 0.000150
+
+# print(ans)
+
+
+# Fetch Portfolio stream feed
+
+# import upstox_client
+# import ssl
+# import websockets
+# import asyncio
+# import json
+# import os
+# from dotenv import load_dotenv
+
+# load_dotenv()
+
+
+# def get_portfolio_stream_feed_authorize(api_version, configuration):
+#     api_instance = upstox_client.WebsocketApi(
+#         upstox_client.ApiClient(configuration))
+#     api_response = api_instance.get_portfolio_stream_feed_authorize(
+#         api_version)
+#     return api_response
+
+
+# async def fetch_order_updates():
+#     ssl_context = ssl.create_default_context()
+#     ssl_context.check_hostname = False
+#     ssl_context.verify_mode = ssl.CERT_NONE
+
+#     # Configure OAuth2 access token for authorization: OAUTH2
+#     configuration = upstox_client.Configuration()
+
+#     api_version = '2.0'
+#     configuration.access_token = os.getenv('UPSTOX_ACCESS_TOKEN')
+
+#     # Get portfolio stream feed authorize
+#     response = get_portfolio_stream_feed_authorize(
+#         api_version, configuration)
+
+#     async with websockets.connect(response.data.authorized_redirect_uri, ssl=ssl_context) as websocket:
+#         print('Connection established')
+
+#         # Perform WebSocket operations
+#         while True:
+#             message = await websocket.recv()
+#             print(json.dumps(message))
+
+# asyncio.run(fetch_order_updates())
+
+
+# class Monitoring():
+#     '''
+#         To check if the trade hit SL or TP
+#     '''
+#     _instance = None
+
+#     @classmethod
+#     def get_instance(cls):
+#         if not cls._instance:
+#             cls._instance = Monitoring()
+#         return cls._instance
+    
+#     def __new__(cls, *args, **kwargs):
+#         if cls._instance is not None:
+#             raise Exception("This is a singleton class. Use `get_instance()` to access the instance.")
+#         return super().__new__(cls)
+
+#     # don't use the constructor to create the objects
+#     def __init__(self):
+#         self.running_trades = [] # Trades that are live
+#         self.pending_trades = [] # Trades that are still in pending status (not live yet)
+
+# a = Monitoring.get_instance()
+# b = Monitoring.get_instance()
+# a.running_trades.append(10)
+# print(a.running_trades)
+# print(b.running_trades)

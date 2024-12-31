@@ -1,50 +1,44 @@
 import os
-import sys
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import asyncio
 from dotenv import load_dotenv
-from Signal_Detection import Signal_Detection
-from backend.brokers.broker import Broker
+from brokers.broker import Broker
 from brokers.upstoxBroker import UpstoxBroker
+from brokers.dummy_broker import Dummy_Broker
 from strategies.strategy1 import MovingAverageStrategy
+from strategies.strategy import TradingStrategy
+from backend.monitoring.monitoring import Monitoring
+from concurrent.futures import ThreadPoolExecutor
+
 
 class Bot():
     '''
         Main interaction point. This will utilize all the other classes
     '''
-    def __init__(self, broker: Broker):
+    def __init__(self, broker: Broker, strategy: TradingStrategy):
         self.broker = broker
-        self.signal_detector = Signal_Detection(self.broker, MovingAverageStrategy())
+        self.strategy = strategy
+        self.monitor = Monitoring.get_instance()
+
+    async def helper(self):
+        loop = asyncio.get_running_loop()
+        executor = ThreadPoolExecutor(5)
+        
+        await asyncio.gather(
+            loop.run_in_executor(executor, self.strategy.subscribe_to_ticks),
+            loop.run_in_executor(executor, self.monitor.subscribe_to_ticks),
+            # self.broker.demo_fetch_and_publish_ticks()
+            self.broker.fetch_and_publish_ticks()
+        )
 
     def run(self):
-        self.signal_detector.find()
+        asyncio.run(self.helper())    
 
 
 # Dependency Injection for strategy
 load_dotenv()
 access_token = os.getenv('UPSTOX_ACCESS_TOKEN')
 api_version = '2.0'
-broker = UpstoxBroker(access_token, api_version)
-bot = Bot(broker)
+broker = Dummy_Broker(access_token, api_version)
+strategy = MovingAverageStrategy(broker)
+bot = Bot(broker, strategy)
 bot.run()
-
-
-class Risk_Management():
-    '''
-        It take signal and check if we can take the trade or not based on the rules
-    '''
-    pass
-
-class Execution():
-    '''
-        Send the order to the broker
-    '''
-    pass
-
-class Monitoring():
-    '''
-        To check if the trade hit SL or TP
-    '''
-    pass
-
-
-        

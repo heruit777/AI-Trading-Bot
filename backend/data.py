@@ -8,10 +8,10 @@ import websockets
 import uuid
 import os
 from dotenv import load_dotenv
-from config import instrument_keys
+from backend.config import instrument_keys
 from google.protobuf.json_format import MessageToDict
 
-import brokers.MarketDataFeed_pb2 as pb
+import backend.brokers.MarketDataFeed_pb2 as pb
 
 load_dotenv()
 access_token = os.getenv('UPSTOX_ACCESS_TOKEN')

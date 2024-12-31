@@ -5,12 +5,35 @@ from abc import ABC, abstractmethod
 class Broker(ABC):
 
     @abstractmethod
-    def connect(self):
-        """Method to establish a connection."""
+    def get_balance(self):
+        """Method to fetch the user balance"""
+        pass
+
+    @abstractmethod
+    def send_order(self, order: dict) -> dict:
+        """Method to send a limit order and a Stop loss market order"""
+        pass
+
+    @abstractmethod
+    def send_market_order(self, order: dict) -> dict:
+        """Method to send a market order"""
+        pass
+
+    def send_limit_order(self, order: dict) -> dict:
+        """Method to send a limit order"""
+        pass
+
+    def send_stop_loss_market_order(self, order: dict) -> dict:
+        """Method to send a stop loss market order"""
         pass
     
     @abstractmethod
-    def fetch_market_data(self, on_tick: Callable[[dict], None]):
+    def fetch_and_publish_ticks(self):
         """Method to fetch market data from the broker."""
+        pass
+
+    @abstractmethod
+    def demo_fetch_and_publish_ticks(self):
+        """Method to fetch market data from my dummy_ws_server"""
         pass
     
