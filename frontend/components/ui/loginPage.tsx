@@ -1,4 +1,8 @@
+"use client";
+import { signIn } from "next-auth/react";
 import { Button } from "./button";
+import SigninForm from "./signinForm";
+import { handleGithubSignin, handleGoogleSignin } from "@/app/actions/authActions";
 
 export default function LoginPage() {
   return (
@@ -12,8 +16,18 @@ export default function LoginPage() {
         <div className="space-y-4">
           <div className="text-2xl font-bold">Login in to your Account</div>
           <div className="flex space-x-2">
-            <Button className="grow">Google</Button>
-            <Button className="grow">Github</Button>
+            <Button
+              className="grow"
+              onClick={handleGoogleSignin} 
+              >
+              Google
+            </Button>
+            <Button
+              className="grow"
+              onClick={handleGithubSignin}
+            >
+              Github
+            </Button>
           </div>
           <div className="flex items-center">
             <hr className="border-white border grow" />
