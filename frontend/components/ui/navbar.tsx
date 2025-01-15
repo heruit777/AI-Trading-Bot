@@ -1,11 +1,12 @@
-"use client"
 import Link from "next/link";
 import { ModeToggle } from "./modeToggle";
 import { AlignJustifyIcon } from "lucide-react";
 import { Button } from "./button";
-import { signIn } from "next-auth/react";
+import { auth, signOut } from "@/auth";
+import { handleSignout } from "@/app/actions/authActions";
 
-export default function Navbar() {
+export default async function Navbar() {
+  const session = await auth();
   return (
     <div className="flex justify-between items-center boder border-b-2 h-16 px-4 text-base">
       <div className="flex items-center space-x-5">
@@ -23,10 +24,20 @@ export default function Navbar() {
           </Link>
         </div>
         <div className="hidden sm:block sm:space-x-4">
-          <Link href="/login">
-            <Button>Log in</Button>
-          </Link>
-          <Button variant={"secondary"} onClick={() => signIn()}>Sign In</Button>
+          {session?.user ? (
+            <Button variant={"secondary"} onClick={handleSignout}>
+              Sign Out
+            </Button>
+          ) : (
+            <>
+              <Link href="/login">
+                <Button variant={"secondary"}>Log in</Button>
+              </Link>
+              <Link href="/signup">
+                <Button>Sign up</Button>
+              </Link>
+            </>
+          )}
         </div>
         <div className="pr-2">
           <ModeToggle />
