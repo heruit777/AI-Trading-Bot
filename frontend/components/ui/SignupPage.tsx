@@ -9,8 +9,6 @@ import { ArrowLeft } from "lucide-react";
 import SigninForm from "./SigninForm";
 
 export default function SignupPage() {
-  const handleGoogleSignup = handleGoogleSignin.bind(null, "signup")
-  const handleGithubSignup = handleGithubSignin.bind(null, "signup")
   return (
     <div className="grid grid-cols-3 h-screen">
       <div className="flex items-center px-10">
@@ -29,7 +27,7 @@ export default function SignupPage() {
         <div className="space-y-4">
           <div className="text-2xl font-bold">Create your Account for free</div>
           <div className="flex space-x-2">
-            <Button className="grow" onClick={handleGoogleSignup}>
+            <Button className="grow" onClick={handleGoogleSignin}>
               <svg
                 enableBackground="new 0 0 128 128"
                 id="Social_Icons"
@@ -75,7 +73,7 @@ export default function SignupPage() {
               </svg>
               Google
             </Button>
-            <Button className="grow" onClick={handleGithubSignup}>
+            <Button className="grow" onClick={handleGithubSignin}>
               <svg
                 enableBackground="new -1163 1657.697 56.693 56.693"
                 height="56.693px"

@@ -1,39 +1,90 @@
-"use server"
-import { signIn, signOut,  } from "@/auth"
-import { AuthError } from "next-auth"
+"use server";
+import { signIn, signOut } from "@/auth";
+import { signinSchema } from "@/lib/zod";
+import { prisma } from "@/prisma/prisma";
+import bcryptjs from "bcryptjs";
+import { AuthError } from "next-auth";
 
-export async function handleGoogleSignin(loginType: "signup" | "login"){
-    await signIn('google', {redirectTo: '/', loginType})
+export async function handleGoogleSignin() {
+  await signIn("google", { redirectTo: "/" });
 }
 
-export async function handleGithubSignin(loginType: "signup" | "login"){
-    await signIn('github', {redirectTo: '/', loginType})
+export async function handleGithubSignin() {
+  await signIn("github", { redirectTo: "/" });
 }
 
-export async function handleCredentialsSignin({ email, password, loginType }: {
-    email: string,
-    password: string,
-    loginType: "signup" | "login"
+export async function handleCredentialsSignin({
+  email,
+  password,
+}: {
+  email: string;
+  password: string;
 }) {
-    try {
-        return await signIn("credentials", { email, password, redirectTo: "/", loginType });
-    } catch (error) {
-        if (error instanceof AuthError) {
-            switch (error.type) {
-                case 'CredentialsSignin':
-                    return {
-                        message: 'Invalid credentials',
-                    }
-                default:
-                    return {
-                        message: 'Something went wrong.',
-                    }
-            }
-        }
-        throw error;
+  try {
+    return await signIn("credentials", { email, password, redirectTo: "/" });
+  } catch (error) {
+    if (error instanceof AuthError) {
+      switch (error.type) {
+        case "CredentialsSignin":
+          return {
+            message: "Invalid credentials",
+          };
+        default:
+          return {
+            message: "Something went wrong.",
+          };
+      }
     }
+    throw error;
+  }
 }
 
-export async function handleSignout(){
-    await signOut()
+export async function handleSignout() {
+  await signOut();
+}
+
+export async function handleSignUp({
+  email,
+  password,
+}: {
+  email: string;
+  password: string;
+}) {
+  try {
+    const parsedCredentials = signinSchema.safeParse({ email, password });
+    if (!parsedCredentials.success) {
+      return { success: false, message: "Invalid data." };
+    }
+
+    // check if the email is already taken
+    const existingUser = await prisma.user.findUnique({
+      where: {
+        email,
+      },
+    });
+
+    if (existingUser) {
+      return {
+        success: false,
+        message: "Email already exists. Login to continue.",
+      };
+    }
+
+    // hash the password
+    const hashedPassword = await bcryptjs.hash(password, 10);
+    await prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+      },
+    });
+
+    return { success: true, message: "Account created successfully." };
+  } catch (error) {
+    console.error("Error creating account:", error);
+    return {
+      success: false,
+      message: "An unexpected error occurred. Please try again.",
+    };
+  }
 }
