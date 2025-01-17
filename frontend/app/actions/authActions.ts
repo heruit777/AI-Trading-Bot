@@ -2,20 +2,21 @@
 import { signIn, signOut,  } from "@/auth"
 import { AuthError } from "next-auth"
 
-export async function handleGoogleSignin(){
-    await signIn('google', {redirectTo: '/'})
+export async function handleGoogleSignin(loginType: "signup" | "login"){
+    await signIn('google', {redirectTo: '/', loginType})
 }
 
-export async function handleGithubSignin(){
-    await signIn('github', {redirectTo: '/'})
+export async function handleGithubSignin(loginType: "signup" | "login"){
+    await signIn('github', {redirectTo: '/', loginType})
 }
 
-export async function handleCredentialsSignin({ email, password }: {
+export async function handleCredentialsSignin({ email, password, loginType }: {
     email: string,
-    password: string
+    password: string,
+    loginType: "signup" | "login"
 }) {
     try {
-        return await signIn("credentials", { email, password, redirectTo: "/" });
+        return await signIn("credentials", { email, password, redirectTo: "/", loginType });
     } catch (error) {
         if (error instanceof AuthError) {
             switch (error.type) {
