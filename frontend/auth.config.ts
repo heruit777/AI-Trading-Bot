@@ -1,6 +1,6 @@
 import Credentials from "next-auth/providers/credentials";
-import Github from "next-auth/providers/github";
-import Google from "next-auth/providers/google";
+import Github, { GitHubProfile } from "next-auth/providers/github";
+import Google, { GoogleProfile } from "next-auth/providers/google";
 import { signinSchema } from "./lib/zod";
 import { prisma } from "./prisma/prisma";
 
@@ -10,7 +10,19 @@ import { NextAuthConfig } from "next-auth";
 export default {
   providers: [
     Google,
-    Github,
+    Github({
+      profile: (profile: GitHubProfile) => {
+        const name = profile.name?.split(" ");
+        return {
+          id: profile.id.toString(), // Ensure the 'id' is returned
+          firstName: name?.[0] ?? "unknown",
+          lastName: name?.[1],
+          email: profile.email,
+          image: profile.avatar_url,
+          username: profile.login,
+        };
+      },
+    }),
     Credentials({
       credentials: {
         email: { label: "Email", type: "email", placeholder: "Email" },
@@ -78,4 +90,7 @@ export default {
       return session;
     },
   },
+  pages: {
+    signIn: "/signup"
+  }
 } satisfies NextAuthConfig;

@@ -18,6 +18,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     ...authConfig
 })
 
+// Following are the attempts to configure Auth.js
 // const adapter = PrismaAdapter(prisma);
 
 // const authConfig: NextAuthConfig = {
