@@ -1,3 +1,7 @@
 .venv
 .env*
 *.pem
+logs/
+*.log
+__pycache__/
+*.pyc
