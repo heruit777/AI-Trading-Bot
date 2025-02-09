@@ -10,7 +10,8 @@ import websockets
 import backend.brokers.MarketDataFeed_pb2 as pb
 from google.protobuf.json_format import MessageToDict
 from backend.brokers.broker import Broker
-from backend.config import instrument_keys
+import backend.config as config
+from backend.logger_config import logger
 from backend.redis_client import RedisClient
 
 class UpstoxBroker(Broker):
@@ -54,10 +55,10 @@ class UpstoxBroker(Broker):
         return feed_response
     
     async def fetch_and_publish_ticks(self):
-        """Fetch market data using WebSocket and print it."""
+        """Fetch market data using WebSocket and logger.info it."""
         # Establish connection to WebSocket
         async with await self.connect() as websocket:
-            print('Connection established')
+            logger.info('Connection established')
 
             await asyncio.sleep(1)  # Wait for 1 second
 
@@ -67,7 +68,7 @@ class UpstoxBroker(Broker):
                 "method": "sub",
                 "data": {
                     "mode": "ltpc",
-                    "instrumentKeys": [instrument_keys['Reliance']]
+                    "instrumentKeys": [config.instrument_keys['Reliance']]
                 }
             }
 
@@ -82,17 +83,21 @@ class UpstoxBroker(Broker):
 
                 # Convert the decoded data to a dictionary
                 data_dict = MessageToDict(decoded_data)
-                self.redis_client.publish('Reliance', json.dumps(data_dict))
-                print('Published')
+                await self.redis_client.publish('Reliance', json.dumps(data_dict))
+                logger.info('Published')
                 # await asyncio.sleep(1)
-                # Print the dictionary representation
-                # print(json.dumps(data_dict))
+                # logger.info the dictionary representation
+                # logger.info(json.dumps(data_dict))
 
     def get_balance(self):
         thread = self.user.get_user_fund_margin(self.api_version, async_req=True)
-        print(thread.get())
+        logger.info(thread.get())
 
-    async def send_market_order(self, order:dict):
+
+    async def send_order(self, userId: str, order: dict):
+        logger.info('Sending order to upstox require real money.')
+
+    async def send_market_order(self, userId: str, order:dict):
         data = {
             'quantity': order['quantity'],
             'product': 'I', # Intraday
@@ -119,10 +124,10 @@ class UpstoxBroker(Broker):
             if response.status_code == 200:
                 data = response.json()
                 order_id = data['data']['order_id']
-                print(f'Market Order [{order_id}] placed successfully by Upstox Broker')
+                logger.info(f'Market Order [{order_id}] placed successfully by Upstox Broker')
                 #send the order_id to monitoring module
 
-    async def send_limit_order(self, order: dict):
+    async def send_limit_order(self, userId: str, order: dict):
         data = {
             'quantity': order['quantity'],
             'product': 'I',
@@ -149,9 +154,9 @@ class UpstoxBroker(Broker):
             if response.status_code == 200:
                 data = response.json()
                 order_id = data['data']['order_id']
-                print(f'Limit Order [{order_id}] placed successfully by Upstox Broker')
+                logger.info(f'Limit Order [{order_id}] placed successfully by Upstox Broker')
 
-    async def send_stop_loss_market_order(self, order: dict):
+    async def send_stop_loss_market_order(self, userId: str, order: dict):
         data = {
             'quantity': order['quantity'],
             'product': 'I',
@@ -178,7 +183,7 @@ class UpstoxBroker(Broker):
             if response.status_code == 200:
                 data = response.json()
                 order_id = data['data']['order_id']
-                print(f'Stop Loss Market Order [{order_id}] placed successfully by Upstox Broker')
+                logger.info(f'Stop Loss Market Order [{order_id}] placed successfully by Upstox Broker')
 
             
 
@@ -192,7 +197,7 @@ class UpstoxBroker(Broker):
     
     # For my dummy_ws_server(Mock websocket server that send tick data)
     async def demo_fetch_and_publish_ticks(self):
-        async with self.demo_connect()  as ws:
+        async with self.demo_connect() as ws:
             data = {
                 "guid": str(uuid.uuid4()),
                 "method": "sub",
@@ -204,7 +209,7 @@ class UpstoxBroker(Broker):
             await ws.send(json.dumps(data))
             while True:
                 tick_data = await ws.recv()
-                # print(json.loads(tick_data))
-                self.redis_client.publish('Reliance', tick_data)
-                print('Published')
+                # logger.info(json.loads(tick_data))
+                await self.redis_client.publish('Reliance', tick_data)
+                logger.info('Published')
     

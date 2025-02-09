@@ -1,4 +1,8 @@
-1. understaning how upstox handle orders and then replicate in dummy broker
-2. Test the backend for order handling
-3. Build a strategy
-4. Test the backend (if successful then project is in working condition atleast the bot part)
+Frontend
+1. Showing current P&L in user friendly manner
+
+Backend
+1. Implement the LLM trading Strategy
+2. See how it works with your Bot (Integration Testing)
+3. Websocket logic of showing current P&L on the frontend
+

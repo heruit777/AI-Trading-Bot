@@ -1,6 +1,6 @@
 import Credentials from "next-auth/providers/credentials";
 import Github, { GitHubProfile } from "next-auth/providers/github";
-import Google, { GoogleProfile } from "next-auth/providers/google";
+import Google from "next-auth/providers/google";
 import { signinSchema } from "./lib/zod";
 import { prisma } from "./prisma/prisma";
 

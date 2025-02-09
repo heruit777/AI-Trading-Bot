@@ -1,7 +1,5 @@
-import { auth } from "@/auth"
+import DashboardPage from "@/components/ui/dashbordPage";
 
 export default async function Page(){
-    const session = await auth()
-    if (!session) return <div>Not authenticated</div>
-    return <>Dashboard Page</>
+    return <DashboardPage />
 }

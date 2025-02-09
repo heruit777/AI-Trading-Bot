@@ -9,6 +9,12 @@ instrument_keys = {
     "BHARTI AIRTEL":"NSE_EQ|INE397D01024"
 }
 
+# Define the key for the hash for redis instrument price useful for dummy broker to get current market price
+INSTRUMENT_PRICES_KEY = "instrument_prices"
+
+# Boolean variable to check if we are in a trade or not
+IN_TRADE = False
+
 # Initial Balance
 BALANCE = 100_000
 

@@ -1,10 +1,10 @@
 import asyncio
 import ssl
 import uuid
+import json
 import pathlib
 from websockets.asyncio.client import connect
-from config import instrument_keys
-import json
+from backend.logger_config import logger
 
 ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
 localhost_pem = pathlib.Path(__file__).with_name("localhost.pem")
@@ -23,7 +23,7 @@ async def main():
         await ws.send(json.dumps(data))
         while True:
             tick_data = await ws.recv()
-            print(json.loads(tick_data))
+            logger.info(json.loads(tick_data))
 
 if __name__ == "__main__":
     asyncio.run(main())

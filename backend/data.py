@@ -7,8 +7,9 @@ import upstox_client
 import websockets
 import uuid
 import os
+from backend.logger_config import logger
 from dotenv import load_dotenv
-from backend.config import instrument_keys
+import backend.config as config
 from google.protobuf.json_format import MessageToDict
 
 import backend.brokers.MarketDataFeed_pb2 as pb
@@ -33,7 +34,7 @@ def decode_protobuf(buffer):
 
 
 async def fetch_market_data():
-    """Fetch market data using WebSocket and print it."""
+    """Fetch market data using WebSocket and logger.info it."""
 
     # Create default SSL context
     ssl_context = ssl.create_default_context()
@@ -52,7 +53,7 @@ async def fetch_market_data():
 
     # Connect to the WebSocket with SSL context
     async with websockets.connect(response.data.authorized_redirect_uri, ssl=ssl_context) as websocket:
-        print('Connection established')
+        logger.info('Connection established')
 
         await asyncio.sleep(1)  # Wait for 1 second
 
@@ -62,8 +63,7 @@ async def fetch_market_data():
             "method": "sub",
             "data": {
                 "mode": "full",
-                "instrumentKeys": [instrument_keys['Reliance'], instrument_keys['TCS'], instrument_keys['HDFC BANK']
-                                   , instrument_keys['ICICI BANK'], instrument_keys['BHARTI AIRTEL']]
+                "instrumentKeys": [config.instrument_keys['Reliance'], config.instrument_keys['TCS'], config.instrument_keys['HDFC BANK'], config.instrument_keys['ICICI BANK'], config.instrument_keys['BHARTI AIRTEL']]
             }
         }
 
@@ -79,8 +79,8 @@ async def fetch_market_data():
             # Convert the decoded data to a dictionary
             data_dict = MessageToDict(decoded_data)
 
-            # Print the dictionary representation
-            print(json.dumps(data_dict))
+            # logger.info the dictionary representation
+            logger.info(json.dumps(data_dict))
 
 
 # Execute the function to fetch market data

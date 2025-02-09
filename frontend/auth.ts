@@ -1,12 +1,6 @@
-import NextAuth, { NextAuthConfig, User } from "next-auth";
-import GitHub from "next-auth/providers/github";
-import Google from "next-auth/providers/google";
-import Credentials from "next-auth/providers/credentials";
-import { encode as defaultEncode } from "next-auth/jwt";
+import NextAuth from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "./prisma/prisma";
-import { v4 as uuid } from "uuid";
-import { getUserFromDb } from "./lib/db";
 import authConfig from "./auth.config";
 
 

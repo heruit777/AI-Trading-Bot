@@ -2,11 +2,12 @@ import asyncio
 import ssl
 import random
 import pathlib
+import json
 import time
 from websockets.asyncio.server import serve
 from websocket import WebSocket
-from config import instrument_keys
-import json
+from backend.logger_config import logger
+import backend.config as config
 
 
 '''
@@ -48,7 +49,7 @@ async def send_tick_data(ws: WebSocket):
         await asyncio.sleep(0.1)
         tick_data = {
             'feeds': {
-                instrument_keys[instrument_name]: {
+                config.instrument_keys[instrument_name]: {
                     'ltpc': {**ltpc}
                 }
             }, 
@@ -64,6 +65,7 @@ localhost_pem = pathlib.Path(__file__).with_name("localhost.pem")
 ssl_context.load_cert_chain(localhost_pem)
 
 async def main():
+    logger.info("Websocket Server Started on wss://localhost:8765")
     async with serve(send_tick_data, "localhost", 8765, ssl=ssl_context) as server:
         await server.serve_forever()  # run forever
 

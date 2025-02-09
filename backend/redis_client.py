@@ -1,4 +1,4 @@
-import redis
+from redis.asyncio import Redis
 
 class RedisClient():
     _instance = None
@@ -6,5 +6,5 @@ class RedisClient():
     @classmethod
     def get_instance(cls):
         if not cls._instance:
-            cls._instance = redis.Redis(host="localhost", port="6379", decode_responses=True)
+            cls._instance = Redis(host="localhost", port="6379", decode_responses=True)
         return cls._instance

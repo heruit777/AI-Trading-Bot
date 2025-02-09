@@ -6,11 +6,11 @@ import bcryptjs from "bcryptjs";
 import { AuthError } from "next-auth";
 
 export async function handleGoogleSignin() {
-  await signIn("google", { redirectTo: "/" });
+  await signIn("google", { redirectTo: "/dashboard" });
 }
 
 export async function handleGithubSignin() {
-  await signIn("github", { redirectTo: "/" });
+  await signIn("github", { redirectTo: "/dashboard" });
 }
 
 export async function handleCredentialsSignin({
@@ -21,7 +21,7 @@ export async function handleCredentialsSignin({
   password: string;
 }) {
   try {
-    return await signIn("credentials", { email, password, redirectTo: "/" });
+    return await signIn("credentials", { email, password, redirectTo: "/dashboard" });
   } catch (error) {
     if (error instanceof AuthError) {
       switch (error.type) {
@@ -40,7 +40,7 @@ export async function handleCredentialsSignin({
 }
 
 export async function handleSignout() {
-  await signOut();
+  await signOut({redirectTo: '/'});
 }
 
 export async function handleSignUp({

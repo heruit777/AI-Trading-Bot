@@ -8,7 +8,7 @@ import { handleSignout } from "@/app/actions/authActions";
 export default async function Navbar() {
   const session = await auth();
   return (
-    <div className="flex justify-between items-center boder border-b-2 h-16 px-4 text-base">
+    <div className="flex justify-between items-center border border-b-2 h-16 px-4 text-base">
       <div className="flex items-center space-x-5">
         <AlignJustifyIcon className="hover:cursor-pointer md:hidden" />
         <div className="md:text-2xl">AI Trading Bot</div>

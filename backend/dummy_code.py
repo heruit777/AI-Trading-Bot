@@ -3,6 +3,7 @@
 # import yfinance as yf
 # import pandas as pd
 # import numpy as np
+# from backend.logger_config import logger
 
 # data = yf.download('RELIANCE.NS', start='2024-12-01', end='2024-12-08', interval='15m')
 # day_data = data.first("3D")
@@ -16,8 +17,8 @@
 # }
 # fun = abstract.Function('MACD')
 # c = fun(day_data, signalperiod=1)
-# print(tb.MACD(np.array(c).flatten(), fastperiod=12, slowperiod=26, signalperiod=9))
-# print(c)
+# logger.info(tb.MACD(np.array(c).flatten(), fastperiod=12, slowperiod=26, signalperiod=9))
+# logger.info(c)
 
 # import talib
 # import numpy as np
@@ -31,7 +32,7 @@
 
 # # Convert closing prices to a NumPy array
 # close_prices = np.array(df['close'])
-# print(close_prices)
+# logger.info(close_prices)
 # # Calculate MACD
 # macd, macd_signal, macd_hist = talib.MACD(close_prices, fastperiod=12, slowperiod=26, signalperiod=9)
 
@@ -40,7 +41,7 @@
 # df['MACD_Signal'] = macd_signal
 # df['MACD_Hist'] = macd_hist
 
-# print(df)
+# logger.info(df)
 
 
 
@@ -80,7 +81,7 @@
 # df["MACD"] = macd
 # df["RSI"] = rsi
 
-# print(df)
+# logger.info(df)
 
 # import logging
 
@@ -124,10 +125,10 @@
 #         writer = csv.writer(file)
 #         writer.writerow(column_names)
 #         writer.writerows(candles)
-#     print('Data written successfully')
+#     logger.info('Data written successfully')
     
 # else:
-#     print(f"Error: {response.status_code} - {response.text}")
+#     logger.info(f"Error: {response.status_code} - {response.text}")
 
 # connect to Redis
 # import redis
@@ -135,10 +136,10 @@
 # redis_server = redis.Redis(host="localhost", port="6379")
 # redis_server.set(name='foo', value='bar')
 
-# print('Value set, retrieve it')
+# logger.info('Value set, retrieve it')
 
 # value = redis_server.get('foo')
-# print(f'Value for foo is {value}')
+# logger.info(f'Value for foo is {value}')
 
 # from decimal import Decimal
 
@@ -149,7 +150,7 @@
 # ans = round(balance+distance, 4)
 # ans += 0.000150
 
-# print(ans)
+# logger.info(ans)
 
 
 # Fetch Portfolio stream feed
@@ -189,12 +190,12 @@
 #         api_version, configuration)
 
 #     async with websockets.connect(response.data.authorized_redirect_uri, ssl=ssl_context) as websocket:
-#         print('Connection established')
+#         logger.info('Connection established')
 
 #         # Perform WebSocket operations
 #         while True:
 #             message = await websocket.recv()
-#             print(json.dumps(message))
+#             logger.info(json.dumps(message))
 
 # asyncio.run(fetch_order_updates())
 
@@ -224,5 +225,5 @@
 # a = Monitoring.get_instance()
 # b = Monitoring.get_instance()
 # a.running_trades.append(10)
-# print(a.running_trades)
-# print(b.running_trades)
+# logger.info(a.running_trades)
+# logger.info(b.running_trades)
