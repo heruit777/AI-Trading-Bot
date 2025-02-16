@@ -1,87 +1,54 @@
-"use client";
+import { CardContent, CardHeader } from "./card";
+import { TradeDetails } from "./dashbordPage";
 
-import { useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
-import TradeInfoSkeleton from "./skeletons/tradeInfoSkeleton";
-
-interface TradeDetails {
-  transaction_type: string;
-  order_price: number;
-  pnl: number;
-  qty: number;
-  sl_price: number;
-  tp_price: number;
-}
-
-export default function CurrentTradeContent() {
-  const { data: session, status, update } = useSession();
-  const [isLoading, setIsLoading] = useState<Boolean>(true);
-  const [tradeDetails, setTradeDetails] = useState<TradeDetails>();
-
-  useEffect(() => {
-    update();
-    const userId = session?.user?.id; // Get User ID from session
-    if (!userId) {
-      return;
-    }
-    console.log(userId);
-    let ws: WebSocket;
-    try {
-      ws = new WebSocket(`ws://127.0.0.1:8000/ws/trade-updates/${userId}`);
-
-      ws.onopen = () => {
-        console.log("Connected to WebSocket");
-      };
-
-      ws.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          console.log("Received Trade Data:", data);
-          setTradeDetails(data as TradeDetails);
-          setIsLoading(false);
-        } catch (error) {
-          console.log(`Error parsing websocket message: ${error}`);
-        }
-      };
-
-      ws.onerror = (error) => {
-        console.error("WebSocket error:" + error);
-      };
-
-      ws.onclose = () => {
-        console.log("WebSocket connection closed");
-      };
-    } catch (error) {
-      console.error(`Error establishing connection with websocket ${error}`);
-    }
-    return () => {
-      try {
-        if (ws && ws.readyState === WebSocket.OPEN) {
-          console.log(
-            `Closing WebSocket connection... ReadyState: ${ws.readyState}`
-          );
-          ws.close();
-        }
-      } catch (error) {
-        console.error(`Error closing websocker ${error}`);
-      }
-    };
-  }, [session?.user?.id]);
-
+export default function CurrentTradeContent({
+  transaction_type,
+  order_price,
+  pnl,
+  qty,
+  sl_price,
+  tp_price,
+}: TradeDetails) {
   return (
     <>
-      {isLoading ? (
-        <TradeInfoSkeleton />
-      ) : (
-        <div className="grid grid-rows-3 grid-cols-2 text-gray-300 font-semibold gap-4">
-          <div>Trade Qty: {tradeDetails?.qty}</div>
-          <div>Trade Type: {tradeDetails?.transaction_type}</div>
-          <div>Entry Price: {tradeDetails?.order_price}</div>
-          <div>Stop Loss: {tradeDetails?.sl_price}</div>
-          <div>Target: {tradeDetails?.tp_price}</div>
-          <div>PnL: {tradeDetails?.pnl.toFixed(2)}</div>
+      <CardHeader className="font-bold">Current Trade Details</CardHeader>
+      <hr />
+      <CardContent className="flex flex-col text-gray-300 space-y-2 mt-5">
+        <div className="space-x-2">
+          <span className="font-bold">Stock Name:</span>
+          <span className="text-slate-400">Reliance</span>
         </div>
-      )}
+        <div className="space-x-2">
+          <span className="font-bold">Trade Qty:</span>
+          <span className="text-slate-400">{qty}</span>
+        </div>
+        <div className="space-x-2">
+          <span className="font-bold">Trade Type:</span>
+          <span className="text-slate-400">{transaction_type}</span>
+        </div>
+        <div className="space-x-2">
+          <span className="font-bold">Entry Price:</span>
+          <span className="text-slate-400">{order_price}</span>
+        </div>
+        <div className="space-x-2">
+          <span className="font-bold">Stop Loss:</span>
+          <span className="text-slate-400">{sl_price}</span>
+        </div>
+        <div className="space-x-2">
+          <span className="font-bold">Target:</span>
+          <span className="text-slate-400">{tp_price}</span>
+        </div>
+        <div className="space-x-2">
+          <span>PnL:</span>
+          <span
+            className={`font-bold ${
+              pnl < 0 ? "text-red-400" : "text-green-400"
+            }`}
+          >
+            {pnl.toFixed(2)}
+          </span>
+        </div>
+      </CardContent>
     </>
   );
 }

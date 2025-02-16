@@ -96,7 +96,7 @@ export default function SettingsPage() {
     })();
   }, [form]);
   return (
-    <div className="mx-auto w-1/2 mt-20 bg-secondary px-4 py-4 rounded-lg">
+    <div className="mx-auto w-3/4 mt-10 px-10 py-5 rounded-lg border">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
