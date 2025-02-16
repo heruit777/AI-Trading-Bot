@@ -18,7 +18,7 @@ export async function fetchBroker() {
     });
 
     if (!existingBroker) return null;
-    console.log(existingBroker);
+    // console.log(existingBroker);
     return existingBroker;
   } catch (error) {
     console.error("Error fetching broker:", error);
@@ -28,11 +28,13 @@ export async function fetchBroker() {
 
 export async function createBroker({
   brokerType,
+  balance,
   accessToken,
   apiKey,
   apiSecret,
 }: {
   brokerType: string;
+  balance?: number | undefined;
   accessToken?: string | undefined;
   apiKey?: string | undefined;
   apiSecret?: string | undefined;
@@ -60,12 +62,13 @@ export async function createBroker({
 
     if (existingBroker) {
       // Update existing broker
-      
+      console.log('Exisint user issue', brokerType, typeof(accessToken), typeof(balance), typeof(apiKey), typeof(apiSecret))
       return await prisma.broker.update({
         where: { userId },
         data: {
           broker_type: brokerType,
           access_token: accessToken,
+          balance: balance,
           api_version: "2.0",
           api_key: apiKey,
           api_secret: apiSecret,
@@ -78,6 +81,7 @@ export async function createBroker({
           userId,
           broker_type: brokerType,
           access_token: accessToken,
+          balance: balance,
           api_version: "2.0",
           api_key: apiKey,
           api_secret: apiSecret,

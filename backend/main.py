@@ -5,7 +5,7 @@
 # from backend.strategies.strategy1 import MovingAverageStrategy
 # from backend.bot.Bot import Bot
 
-# load_dotenv()
+# load_dotenv(override=True)
 # access_token = os.getenv('UPSTOX_ACCESS_TOKEN')
 # api_version = '2.0'
 # broker = Dummy_Broker(access_token, api_version)

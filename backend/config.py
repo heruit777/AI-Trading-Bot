@@ -16,7 +16,7 @@ INSTRUMENT_PRICES_KEY = "instrument_prices"
 IN_TRADE = False
 
 # Initial Balance
-BALANCE = 100_000
+# BALANCE = 100_000
 
 # Rules for Risk Management
 MAX_NUMBER_OF_TRADES_PER_DAY = 4

@@ -17,7 +17,6 @@ import backend.config as config
 from datetime import date
 from backend.logger_config import logger
 from dateutil.relativedelta import relativedelta
-from backend.risk_management.risk_management import Risk_Management
 import pandas as pd
 import ta
 import httpx
@@ -26,12 +25,11 @@ import os
 import asyncio
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(override=True)
 
 class LLMStrategy():
     def __init__(self):
         self.redis_client = RedisClient.get_instance()
-        self.risk_manager = Risk_Management(balance=config.BALANCE)
         self.window = 7 # used in RSI and EMA, how much candles to consider
         self.timeframe = '30minute'
 

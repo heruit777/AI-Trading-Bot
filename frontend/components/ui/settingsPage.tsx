@@ -27,6 +27,7 @@ import { useEffect, useState } from "react";
 import MoonLoader from "react-spinners/MoonLoader";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { parseNumber } from "@/lib/utils";
 
 export default function SettingsPage() {
   const [loading, setLoading] = useState(false);
@@ -38,6 +39,7 @@ export default function SettingsPage() {
     defaultValues: {
       accessToken: "",
       brokerType: "",
+      balance: 10000,
       apiKey: "",
       apiSecret: "",
     },
@@ -46,11 +48,10 @@ export default function SettingsPage() {
   const brokerType = form.watch("brokerType");
 
   async function onSubmit(values: z.infer<typeof settingSchema>) {
-    console.log('Clicked')
+    console.log("Clicked");
     setLoading(true);
     try {
-      // await new Promise((resolve) => setTimeout(resolve, 2000));
-      console.log(values); 
+      console.log(values);
       const res = await createBroker(values);
       toast("Settings updated successfully 🎉");
     } catch (error) {
@@ -72,7 +73,7 @@ export default function SettingsPage() {
     }
 
     // Construct the URL with query parameters
-    const url = `http://localhost:8000/login?client_id=${encodeURIComponent(
+    const url = `http://127.0.0.1:8000/login?client_id=${encodeURIComponent(
       clientId
     )}&client_secret=${encodeURIComponent(clientSecret)}&user_id=${userId}`;
 
@@ -84,9 +85,10 @@ export default function SettingsPage() {
   useEffect(() => {
     (async () => {
       const brokerData = await fetchBroker();
-      console.log(`${brokerData?.api_secret} line 87`)
+      console.log(`${brokerData?.balance} line 87`);
       if (brokerData) {
         form.setValue("brokerType", brokerData.broker_type as string);
+        form.setValue("balance", brokerData.balance as number);
         form.setValue("accessToken", brokerData.access_token as string);
         form.setValue("apiKey", brokerData.api_key as string);
         form.setValue("apiSecret", brokerData.api_secret as string);
@@ -118,6 +120,29 @@ export default function SettingsPage() {
               </FormItem>
             )}
           />
+          {brokerType === "dummy" && (
+            <FormField
+              control={form.control}
+              name="balance"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-lg font-bold">Balance</FormLabel>
+                  <FormControl>
+                    <div className="flex space-x-4">
+                      <Input
+                        placeholder="Enter Balance"
+                        {...field}
+                        className="border border-gray-500"
+                        onChange={(e) => field.onChange(parseNumber(e.target.value))}
+                        // ISSUE: Balance can't be float in frontend
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
           {brokerType !== "dummy" && brokerType !== "" && (
             <>
               <div>

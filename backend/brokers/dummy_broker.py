@@ -87,28 +87,33 @@ class Dummy_Broker(Broker):
                 # update the price in the hash map
                 await self.redis_client.hset(config.INSTRUMENT_PRICES_KEY, "Reliance", price)
                 await self.redis_client.publish('Reliance', json.dumps(data_dict))
-                logger.info('Published')
+                # logger.info('Published')
                 # await asyncio.sleep(1)
                 # logger.info the dictionary representation
                 # logger.info(json.dumps(data_dict))
-
-    def get_balance(self):
-        return config.BALANCE
     
     async def send_order(self, userId, order):
-        res1 = await self.send_market_order(userId, order)
-        if res1['status'] == 'success':
+        mkt_order = await self.send_market_order(userId, order)
+        sl_price, tp_price = order['sl'], order['tp']
+        if mkt_order['status'] == 'success':
             if order['transaction_type'] == 'buy':
-                order['price'] = res1['price'] - order['sl']
+                sl_price = mkt_order['price'] - sl_price
+                tp_price = mkt_order['price'] + tp_price
             else:
                 # sell
-                order['price'] = res1['price'] + order['sl']
-            # logger.info('From 103 line', order)
-            order['trigger_price'] = order['price']
-            del order['price']
-            res2 = await self.send_stop_loss_market_order(userId, order)
-            if res2['status'] == 'success':
-                self.monitor.monitor_trade(order['transaction_type'], res1, res2)
+                sl_price = mkt_order['price'] + sl_price
+                tp_price = mkt_order['price'] - tp_price
+
+            order1, order2 = order.copy(), order.copy()
+            
+            order1['trigger_price'] = sl_price
+            order2['trigger_price'] = tp_price
+            # print('From 103 line', order, order1, sl_price, tp_price)
+            # sl_order = await self.send_stop_loss_market_order(userId, order)
+            # tp_order = await self.send_limit_order(userId, order1)
+            sl_order, tp_order = await asyncio.gather(self.send_stop_loss_market_order(userId, order1), self.send_limit_order(userId, order2))
+            if sl_order['status'] == 'success' and tp_order['status'] == 'success':
+                self.monitor.monitor_trade(order['transaction_type'], userId, [mkt_order, sl_order, tp_order])
     
     async def send_market_order(self, userId: str, order:dict):
         data = {
@@ -130,19 +135,19 @@ class Dummy_Broker(Broker):
         market_price = await self.redis_client.hget(config.INSTRUMENT_PRICES_KEY, "Reliance")
         order_id = uuid.uuid4().int % (10**13)
         logger.info(f'Market Order [{order_id}] placed successfully by Dummy Broker at {float(market_price)}')
-        return {'status': 'success', 'order_id': order_id, 'user_id': userId, 'price': float(market_price)}
+        return {'status': 'success', 'order_id': order_id, 'user_id': userId, 'price': float(market_price), 'quantity': order['quantity']}
 
     async def send_limit_order(self, userId: str, order: dict):
         data = {
             'quantity': order['quantity'],
             'product': 'I',
             'validity': 'DAY',
-            'price': order['price'],
+            'price': 0,
             'instrument_token': order['instrument_token'],
             'order_type': 'LIMIT',
             'transaction_type': order['transaction_type'],
             'disclosed_quantity': 0,
-            'trigger_price': 0, # It is for Stop loss orders only so it's irrelevant here
+            'trigger_price': order['trigger_price'], 
             'is_amo': False,
         }
 
@@ -151,7 +156,7 @@ class Dummy_Broker(Broker):
         # may be log it
         order_id = uuid.uuid4().int % (10**13)
         logger.info(f'Limit Order [{order_id}] placed successfully by Dummy Broker')
-        return {'status': 'success', 'user_id': userId, 'order_id': order_id}
+        return {'status': 'success', 'user_id': userId, 'order_id': order_id, 'trigger_price': order['trigger_price']}
 
     async def send_stop_loss_market_order(self, userId: str, order: dict):
         data = {
@@ -202,5 +207,5 @@ class Dummy_Broker(Broker):
                 price = tick_data['feeds'][config.instrument_keys['Reliance']]['ltpc']['ltp']
                 # update the price in the hash map
                 await self.redis_client.hset(config.INSTRUMENT_PRICES_KEY, "Reliance", price)
-                logger.info('Published')
+                # logger.info('Published')
                 await self.redis_client.publish('Reliance', json.dumps(tick_data))

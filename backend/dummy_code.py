@@ -163,7 +163,7 @@
 # import os
 # from dotenv import load_dotenv
 
-# load_dotenv()
+# load_dotenv(override=True)
 
 
 # def get_portfolio_stream_feed_authorize(api_version, configuration):

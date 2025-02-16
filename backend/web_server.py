@@ -1,28 +1,45 @@
 import os
 import httpx
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from dotenv import load_dotenv
 from urllib.parse import urlencode
 from backend.brokers.brokerFactory import BrokerFactory, BrokerType
 from backend.bot.Bot import Bot
 from bson import ObjectId
 from starlette.middleware.cors import CORSMiddleware
+from backend.monitoring.monitoring import Monitoring
+from contextlib import asynccontextmanager
+import asyncio
+import json
 from backend.db.db import database
+from typing import Dict
 from backend.logger_config import logger
 from backend.strategies.strategy1 import MovingAverageStrategy
 
 # Good practice to define env varialbes before the app starts and we can use pydantic to validate the env file
-load_dotenv()
+load_dotenv(override=True)
 # client_id = os.getenv('UPSTOX_API_KEY')
 # client_secret = os.getenv('UPSTOX_API_SECRET')
 redirect_uri = 'http://127.0.0.1:8000/oauth/callback'
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    monitor = Monitoring.get_instance()
+    asyncio.create_task(send_pnl_updates(monitor))
+    yield
+    print(f'Final History: {monitor.history}')
+    
+app = FastAPI(lifespan=lifespan)
+
+# app = FastAPI()
 # Allow CORS for specific origins (you can adjust this as needed)
 origins = [
     "http://localhost:3000",  # Replace with your frontend URL
     # "https://yourfrontenddomain.com",  # If you have a production frontend
 ]
+
+# Store WebSocket connections mapped to user IDs
+user_connections: Dict[str, WebSocket] = {}
 
 # Adding CORS middleware to FastAPI app
 app.add_middleware(
@@ -120,7 +137,7 @@ async def start_bot():
         users_with_linked_brokers = await database['Broker'].find().to_list(length=None) # None fetches all the users
         # TODO: we should make some mechanism to encrypt the upstox credentials of the user
         user_broker_map = {}
-        logger.info(users_with_linked_brokers)
+        print(users_with_linked_brokers)
         for user in users_with_linked_brokers:
             user_id = str(user["userId"])
             broker_type = user["broker_type"]
@@ -128,11 +145,74 @@ async def start_bot():
             api_version = user['api_version']
             user_broker_map[user_id] = BrokerFactory.create_broker(BrokerType[broker_type.upper()], access_token, api_version)
 
-        logger.info(user_broker_map)
+        print(user_broker_map)
         admin_broker = BrokerFactory.create_broker(BrokerType.DUMMY, os.getenv('UPSTOX_ACCESS_TOKEN'), os.getenv('UPSTOX_API_VERSION'))
         bot = Bot(user_broker_map, MovingAverageStrategy(), admin_broker)
         bot.run()
         return {"message": "Brokers initialized and bot started"}
     except Exception as e:
-        logger.info(f'Some error occured {e}')
+        print(f'Some error occured {e}')
         return {"message": "Failed to start the bot"}
+    
+# Function to send personalized P&L updates
+async def send_pnl_updates(monitor: Monitoring):
+    print('Sending Pnl updates to active users')
+    while True:
+        if not user_connections:
+            print('No active users')
+            await asyncio.sleep(0.1)
+            continue
+
+        for user_id, websocket in list(user_connections.items()):
+            # ChatGPT gave the following code now improve it
+            # print(f'Value of {monitor.user_to_orders}')
+            await asyncio.sleep(0.1)
+            # print(f'User id [{user_id}] and map: {monitor.user_to_orders} and Status: {user_id in monitor.user_to_orders}')
+            if user_id in monitor.user_to_orders:
+                try:
+                    # Send only this user's P&L
+                    order_details = monitor.get_order_details(user_id)
+                    # print(f"Sending {order_details} to User [{user_id}]")
+                    # print(f'Value of websocket {websocket}')
+                    # print(f'is websocket closed? {websocket.client_state}')
+                    await websocket.send_text(json.dumps(order_details))
+                except WebSocketDisconnect:
+                    del user_connections[user_id]
+                    print(f'Removed user [{user_id}]')
+                except Exception as e:
+                    del user_connections[user_id]
+                    print(f'Removed user [{user_id}]')
+                    print(f"Error sending PnL to {user_id}: {e}")
+            else:
+                del user_connections[user_id]
+                print(f'Removed the user id [{user_id}] as it does not have any trades for him')
+                await websocket.close()
+
+        print(f'Tasking is running and connections: {user_connections}')
+
+@app.websocket("/ws/trade-updates/{user_id}")
+async def websocket_endpoint(websocket: WebSocket, user_id: str):
+    if not user_id:
+        print(f'No user_id so closing websocket connection with user id [{user_id}]')
+        await websocket.close(code=1008)
+        return
+    
+    # check if user_id exists in the db or not.
+    user = await database['Broker'].find_one({"userId": ObjectId(user_id)})
+    if not user:
+        print(f'User Id does not exists in the db')
+        await websocket.close(code=1008)
+        return
+    
+    await websocket.accept()
+    user_connections[user_id] = websocket
+    print(f"User {user_id} connected and Websocket {websocket} and connections : {user_connections}")
+
+    try:
+        while True:
+            await asyncio.sleep(0.1)
+            # await websocket.receive_text()
+    except WebSocketDisconnect:
+        print(f"User {user_id} disconnected")
+        del user_connections[user_id]  # Remove user on disconnect
+    

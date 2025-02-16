@@ -1,9 +1,11 @@
 import asyncio
 import json
 from backend.logger_config import logger
+from backend.db.db import get_balance
 from backend.brokers.broker import Broker
 from backend.strategies.strategy import TradingStrategy
 from backend.monitoring.monitoring import Monitoring
+from backend.risk_management.risk_management import Risk_Management
 from concurrent.futures import ThreadPoolExecutor
 import backend.config as config
 from backend.redis_client import RedisClient
@@ -16,6 +18,7 @@ class Bot():
         self.user_broker_map = user_broker_map
         self.strategy = strategy
         self.monitor = Monitoring.get_instance()
+        self.risk_manager = Risk_Management()
         self.redis_client = RedisClient.get_instance()
         self.admin_broker = admin_broker
 
@@ -27,15 +30,35 @@ class Bot():
             if message['type'] == 'message':
                 asyncio.create_task(self.execute_trade_for_all_users(json.loads(message['data'])))  # Schedule the trade execution asynchronously
 
+    async def process_trade(self, userId: str, broker: Broker, trade_signal: dict):
+        # do risk analysis and if it's valid then take the trade
+        balance = await get_balance(userId)
+        order = self.risk_manager.analyze(balance, trade_signal)
+        if order:
+            if config.IN_TRADE == False:
+                config.IN_TRADE = True
+            await broker.send_order(userId, order)
+        else:
+            logger.info(f'Cannot execute this trade for User Id: [{userId}], SL is too big')
+
     async def execute_trade_for_all_users(self, trade_signal: dict):
         '''
             It will subscribe to channel 'trade_signal' and will receive the trade order and execute that trade for all the user in the user_broker_map
         '''
+        if config.IN_TRADE:
+            logger.info('One trade is already running, so cannot execute another trade')
+            return 
+        
+        tasks = [self.process_trade(userId, broker, trade_signal) for userId, broker in self.user_broker_map.items()]
+        await asyncio.gather(*tasks)
+        logger.info('Finish executing trades for all the eligible users')
+        
         # Instead of asyncio.run(), directly await the async function
-        logger.info('Executing trade for all the users')
-        await asyncio.gather(*[broker.send_order(userId, trade_signal) for userId, broker in self.user_broker_map.items()])
+        # logger.info('Executing trade for all the users')
+        # await asyncio.gather(*[broker.send_order(userId, trade_signal) for userId, broker in self.user_broker_map.items()])
 
-        logger.info('Trade executed for all the users')
+        # logger.info('Trade executed for all the users')
+        # logger.info(f'History: {self.monitor.history}')
 
     async def helper(self):
         loop = asyncio.get_running_loop()
@@ -52,6 +75,7 @@ class Bot():
             # loop.run_in_executor(executor, self.monitor.subscribe_to_ticks),
             # loop.run_in_executor(executor, self.listen_for_trade_signal),
             self.admin_broker.demo_fetch_and_publish_ticks(),
+            # self.admin_broker.fetch_and_publish_ticks(),
             self.strategy.subscribe_to_ticks(),
             self.monitor.subscribe_to_ticks(),
             self.listen_for_trade_signal()

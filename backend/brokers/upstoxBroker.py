@@ -89,9 +89,9 @@ class UpstoxBroker(Broker):
                 # logger.info the dictionary representation
                 # logger.info(json.dumps(data_dict))
 
-    def get_balance(self):
-        thread = self.user.get_user_fund_margin(self.api_version, async_req=True)
-        logger.info(thread.get())
+    # def get_balance(self):
+    #     thread = self.user.get_user_fund_margin(self.api_version, async_req=True)
+    #     logger.info(thread.get())
 
 
     async def send_order(self, userId: str, order: dict):

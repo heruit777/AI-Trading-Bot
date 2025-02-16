@@ -4,13 +4,14 @@ import { signinSchema } from "@/lib/zod";
 import { prisma } from "@/prisma/prisma";
 import bcryptjs from "bcryptjs";
 import { AuthError } from "next-auth";
+import { redirect } from "next/navigation";
 
 export async function handleGoogleSignin() {
-  await signIn("google", { redirectTo: "/dashboard" });
+  return await signIn("google", { redirectTo: "/dashboard" });
 }
 
 export async function handleGithubSignin() {
-  await signIn("github", { redirectTo: "/dashboard" });
+  return await signIn("github", { redirectTo: "/dashboard" });
 }
 
 export async function handleCredentialsSignin({
@@ -21,7 +22,11 @@ export async function handleCredentialsSignin({
   password: string;
 }) {
   try {
-    return await signIn("credentials", { email, password, redirectTo: "/dashboard" });
+    return await signIn("credentials", {
+      email,
+      password,
+      redirectTo: '/dashboard'
+    });
   } catch (error) {
     if (error instanceof AuthError) {
       switch (error.type) {
@@ -40,7 +45,7 @@ export async function handleCredentialsSignin({
 }
 
 export async function handleSignout() {
-  await signOut({redirectTo: '/'});
+  return await signOut({ redirectTo: "/" });
 }
 
 export async function handleSignUp({

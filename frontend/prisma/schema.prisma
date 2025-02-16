@@ -52,6 +52,7 @@ model Broker {
   id           String  @id @default(auto()) @map("_id") @db.ObjectId
   userId       String  @unique @db.ObjectId
   broker_type  String?
+  balance      Float  @default(10000)
   access_token String?
   api_version  String?
   api_key      String?

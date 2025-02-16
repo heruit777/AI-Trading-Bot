@@ -5,11 +5,6 @@ from abc import ABC, abstractmethod
 class Broker(ABC):
 
     @abstractmethod
-    def get_balance(self):
-        """Method to fetch the user balance"""
-        pass
-
-    @abstractmethod
     def send_order(self, userId: str, order: dict) -> dict:
         """Method to send a limit order and a Stop loss market order"""
         pass
