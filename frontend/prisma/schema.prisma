@@ -52,10 +52,24 @@ model Broker {
   id           String  @id @default(auto()) @map("_id") @db.ObjectId
   userId       String  @unique @db.ObjectId
   broker_type  String?
-  balance      Float  @default(10000)
+  balance      Float   @default(10000)
   access_token String?
   api_version  String?
   api_key      String?
   api_secret   String?
   user         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  trades       Trade[]
+}
+
+model Trade {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  brokerId    String   @db.ObjectId
+  symbol      String // e.g., "RELIANCE"
+  quantity    Int
+  entry_price Float
+  exit_price  Float
+  pnl         Float
+  tradeType   String // e.g., "BUY" or "SELL"
+  createdAt   DateTime @default(now())
+  broker      Broker   @relation(fields: [brokerId], references: [id], onDelete: Cascade)
 }

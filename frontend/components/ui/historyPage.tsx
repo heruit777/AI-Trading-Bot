@@ -1,6 +1,5 @@
-"use client";
-
-import * as React from "react";
+import { getTradeHistory } from "@/app/actions/actions";
+import { auth } from "@/auth";
 import {
   Table,
   TableBody,
@@ -9,9 +8,129 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { table } from "console";
+import { ScrollArea } from "./scroll-area";
 
-const trades = [
+const demoTrades = [
+  {
+    id: 1,
+    date: "2025-01-20",
+    stock: "AAPL",
+    type: "Buy",
+    quantity: 10,
+    entryPrice: 150.5,
+    exitPrice: 155.3,
+    pnl: "+48.00",
+  },
+  {
+    id: 2,
+    date: "2025-01-19",
+    stock: "TSLA",
+    type: "Sell",
+    quantity: 5,
+    entryPrice: 700.0,
+    exitPrice: 690.0,
+    pnl: "-50.00",
+  },
+  {
+    id: 3,
+    date: "2025-01-20",
+    stock: "AAPL",
+    type: "Buy",
+    quantity: 10,
+    entryPrice: 150.5,
+    exitPrice: 155.3,
+    pnl: "+48.00",
+  },
+  {
+    id: 4,
+    date: "2025-01-19",
+    stock: "TSLA",
+    type: "Sell",
+    quantity: 5,
+    entryPrice: 700.0,
+    exitPrice: 690.0,
+    pnl: "-50.00",
+  },
+  {
+    id: 5,
+    date: "2025-01-20",
+    stock: "AAPL",
+    type: "Buy",
+    quantity: 10,
+    entryPrice: 150.5,
+    exitPrice: 155.3,
+    pnl: "+48.00",
+  },
+  {
+    id: 6,
+    date: "2025-01-19",
+    stock: "TSLA",
+    type: "Sell",
+    quantity: 5,
+    entryPrice: 700.0,
+    exitPrice: 690.0,
+    pnl: "-50.00",
+  },
+  {
+    id: 1,
+    date: "2025-01-20",
+    stock: "AAPL",
+    type: "Buy",
+    quantity: 10,
+    entryPrice: 150.5,
+    exitPrice: 155.3,
+    pnl: "+48.00",
+  },
+  {
+    id: 2,
+    date: "2025-01-19",
+    stock: "TSLA",
+    type: "Sell",
+    quantity: 5,
+    entryPrice: 700.0,
+    exitPrice: 690.0,
+    pnl: "-50.00",
+  },
+  {
+    id: 3,
+    date: "2025-01-20",
+    stock: "AAPL",
+    type: "Buy",
+    quantity: 10,
+    entryPrice: 150.5,
+    exitPrice: 155.3,
+    pnl: "+48.00",
+  },
+  {
+    id: 4,
+    date: "2025-01-19",
+    stock: "TSLA",
+    type: "Sell",
+    quantity: 5,
+    entryPrice: 700.0,
+    exitPrice: 690.0,
+    pnl: "-50.00",
+  },
+  {
+    id: 5,
+    date: "2025-01-20",
+    stock: "AAPL",
+    type: "Buy",
+    quantity: 10,
+    entryPrice: 150.5,
+    exitPrice: 155.3,
+    pnl: "+48.00",
+  },
+  {
+    id: 6,
+    date: "2025-01-19",
+    stock: "TSLA",
+    type: "Sell",
+    quantity: 5,
+    entryPrice: 700.0,
+    exitPrice: 690.0,
+    pnl: "-50.00",
+  },
   {
     id: 1,
     date: "2025-01-20",
@@ -74,10 +193,14 @@ const trades = [
   },
 ];
 
-export function HistoryPage() {
+export async function HistoryPage() {
+  const session = await auth();
+  const trades = await getTradeHistory(session?.user?.id as string);
+  // const trades = demoTrades;
+  if (!trades) return <></>;
   return (
     <div className="w-full px-10 pt-10">
-      <div className="rounded-md border">
+      <ScrollArea className="h-[600px] rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
@@ -94,22 +217,24 @@ export function HistoryPage() {
                     if (k === "pnl")
                       return (
                         <TableCell
-                          key={v.toString()}
+                          key={v?.toString()}
                           className={`${
                             Number(v) < 0 ? "text-red-400" : "text-green-400"
                           }`}
                         >
-                          {v}
+                          {v.toString()}
                         </TableCell>
                       );
-                    return <TableCell key={v.toString()}>{v}</TableCell>;
+                    return (
+                      <TableCell key={v.toString()}>{v.toString()}</TableCell>
+                    );
                   })}
                 </TableRow>
               );
             })}
           </TableBody>
         </Table>
-      </div>
+      </ScrollArea>
     </div>
   );
 }

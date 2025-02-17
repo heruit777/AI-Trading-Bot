@@ -62,7 +62,14 @@ export async function createBroker({
 
     if (existingBroker) {
       // Update existing broker
-      console.log('Exisint user issue', brokerType, typeof(accessToken), typeof(balance), typeof(apiKey), typeof(apiSecret))
+      console.log(
+        "Exisint user issue",
+        brokerType,
+        typeof accessToken,
+        typeof balance,
+        typeof apiKey,
+        typeof apiSecret
+      );
       return await prisma.broker.update({
         where: { userId },
         data: {
@@ -91,5 +98,70 @@ export async function createBroker({
   } catch (error) {
     console.error("Error creating/updating broker:", error);
     throw error;
+  }
+}
+
+export async function getTradeDetails(userId: string) {
+  try {
+    if (!userId) return { pnl: 0, tradeCount: 0 };
+    const userWithTrades = await prisma.broker.findUnique({
+      where: { userId },
+      include: { trades: true },
+    });
+
+    if (!userWithTrades) return { pnl: 0, tradeCount: 0 };
+
+    const pnl = userWithTrades.trades.reduce((acc, cur) => {
+      return acc + cur.pnl;
+    }, 0);
+    const tradeCount = userWithTrades.trades.length;
+    console.log(pnl, tradeCount);
+    return { pnl, tradeCount };
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+// {
+//   id: 6,
+//   date: "2025-01-19",
+//   stock: "TSLA",
+//   type: "Sell",
+//   quantity: 5,
+//   entryPrice: 700.0,
+//   exitPrice: 690.0,
+//   pnl: "-50.00",
+// },
+interface TradeHistory {
+  id: string;
+  data: string;
+  stock: string;
+  type: string;
+  quantity: number;
+  entryPrice: number;
+  exitPrice: number;
+  pnl: number;
+}
+export async function getTradeHistory(userId: string) {
+  try {
+    const userWithTrades = await prisma.broker.findUnique({
+      where: { userId },
+      include: { trades: true },
+    });
+    if (!userWithTrades) return [];
+    // const data: TradeHistory[] = []
+    return userWithTrades.trades.map((val, index) => {
+      return {
+        id: index + 1,
+        created: new Date(val.createdAt).toUTCString(),
+        quantity: val.quantity,
+        entry_price: val.entry_price,
+        exit_price: val.exit_price,
+        tradeType: val.tradeType,
+        pnl: val.pnl.toFixed(2),
+      };
+    });
+  } catch (error) {
+    console.log(error);
   }
 }

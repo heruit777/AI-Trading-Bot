@@ -17,11 +17,14 @@ For dummy I don't need anything
 # DashBoard
 1. Charts add red colour when it goes in negative. ✅
 2. Remove the skeleton and keep 'Currently not in trade' component for chart and current details card. ✅
-3. Trade count is doubling (because react calls useEffect twice in development mode)
-4. Today Pnl
-5. Show time and stock price accurately
+3. Trade count is doubling (because react calls useEffect twice in development mode) ✅ (React strictmode: false)
+4. Today Pnl ✅
+5. Show time and stock price accurately (get this info from websocket) ✅
+6. Follow the risk management means stop after 5 trades or hit profit target or hit loss target. Show that in frontend [Ignored]
 
 # History
-
+1. Calender view like bingx [Ignored]
+2. Last 10 trades table
 
 # Settings
+1. A loader is required and also polish all the frontend. (Checkout typography in shadcn and use consistent color schema)

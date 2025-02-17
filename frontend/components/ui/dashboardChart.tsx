@@ -25,7 +25,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { Tooltip } from "@radix-ui/react-tooltip";
-import { NotInTradeComponent, PnlData } from "./dashbordPage";
+import { NotInTradeComponent, PnlData } from "./dashboardClientPage";
 
 const dummyPnLData = [
   { time: "10:00:00", pnl: 50 },
@@ -55,7 +55,7 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function DashboardChart({ pnlData }: { pnlData: PnlData[] }) {
+export function DashboardChart({ pnlData, time, stockName }: { pnlData: PnlData[], time: string, stockName: string }) {
   const gradientOffset = () => {
     const dataMax = Math.max(...pnlData.map((i) => i.pnl));
     const dataMin = Math.min(...pnlData.map((i) => i.pnl));
@@ -78,7 +78,7 @@ export function DashboardChart({ pnlData }: { pnlData: PnlData[] }) {
         <CardHeader>
           <CardTitle>PnL Chart - Current Trade</CardTitle>
           <CardDescription>
-            trade executed at 12:05 pm on Reliance
+            Trade executed at {time} on {stockName}
           </CardDescription>
           <CardContent>
             <ChartContainer config={chartConfig}>
