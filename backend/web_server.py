@@ -158,6 +158,7 @@ async def start_bot():
 async def send_pnl_updates(monitor: Monitoring):
     print('Sending Pnl updates to active users')
     while True:
+        # print('RUNNING continously')
         if not user_connections:
             print('No active users')
             await asyncio.sleep(0.1)
@@ -172,15 +173,17 @@ async def send_pnl_updates(monitor: Monitoring):
                 try:
                     # Send only this user's P&L
                     order_details = monitor.get_order_details(user_id)
+                    # print(order_details)
                     # print(f"Sending {order_details} to User [{user_id}]")
                     # print(f'Value of websocket {websocket}')
                     # print(f'is websocket closed? {websocket.client_state}')
                     await websocket.send_text(json.dumps(order_details))
                 except WebSocketDisconnect:
                     del user_connections[user_id]
-                    print(f'Removed user [{user_id}]')
+                    print(f'Removed user [{user_id}] because websocket disconnected')
                 except Exception as e:
-                    del user_connections[user_id]
+                    # del user_connections[user_id]
+                    # print(e.with_traceback())
                     print(f'Removed user [{user_id}]')
                     print(f"Error sending PnL to {user_id}: {e}")
             else:

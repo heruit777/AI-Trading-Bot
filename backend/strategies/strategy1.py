@@ -37,6 +37,7 @@ class MovingAverageStrategy(TradingStrategy):
         ltpc = tick_data['feeds'][config.instrument_keys['Reliance']]['ltpc']
         logger.info(f'From Moving Average Strategy Module: Reliance ltp: {ltpc['ltp']} and ltq: {ltpc['ltq']}')
         signal = self.core_logic(tick_data)
+        # print(f'{signal} ltp: {ltpc['ltp']}')
         if signal['type'] == 'hold':
             logger.info('No Trade')
         else:

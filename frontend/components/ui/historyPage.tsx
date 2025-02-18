@@ -197,43 +197,49 @@ export async function HistoryPage() {
   const session = await auth();
   const trades = await getTradeHistory(session?.user?.id as string);
   // const trades = demoTrades;
-  if (!trades) return <></>;
   return (
     <div className="w-full px-10 pt-10">
       <ScrollArea className="h-[600px] rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              {Object.entries(trades[0]).map(([key, value]) => {
-                return <TableHead key={key}>{key}</TableHead>;
-              })}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {trades.map((key, value) => {
-              return (
-                <TableRow key={key.id}>
-                  {Object.entries(key).map(([k, v]) => {
-                    if (k === "pnl")
+        {trades && trades.length > 0 ? (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                {Object.entries(trades[0]).map(([key, value]) => {
+                  return <TableHead key={key}>{key}</TableHead>;
+                })}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {trades.map((key, value) => {
+                return (
+                  <TableRow key={key.id}>
+                    {Object.entries(key).map(([k, v]) => {
+                      if (k === "pnl")
+                        return (
+                          <TableCell
+                            key={v?.toString()}
+                            className={`${
+                              Number(v) < 0 ? "text-red-400" : "text-green-400"
+                            }`}
+                          >
+                            {v.toString()}
+                          </TableCell>
+                        );
                       return (
-                        <TableCell
-                          key={v?.toString()}
-                          className={`${
-                            Number(v) < 0 ? "text-red-400" : "text-green-400"
-                          }`}
-                        >
-                          {v.toString()}
-                        </TableCell>
+                        <TableCell key={v.toString()}>{v.toString()}</TableCell>
                       );
-                    return (
-                      <TableCell key={v.toString()}>{v.toString()}</TableCell>
-                    );
-                  })}
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
+                    })}
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        ) : (
+          <div className="ml-10 mt-10">
+            <div className="text-3xl">History Table</div>
+            <div className="text-muted-foreground">No trades</div>
+          </div>
+        )}
       </ScrollArea>
     </div>
   );

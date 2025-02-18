@@ -74,8 +74,8 @@ class Bot():
             # loop.run_in_executor(executor, self.strategy.subscribe_to_ticks),
             # loop.run_in_executor(executor, self.monitor.subscribe_to_ticks),
             # loop.run_in_executor(executor, self.listen_for_trade_signal),
-            self.admin_broker.demo_fetch_and_publish_ticks(),
-            # self.admin_broker.fetch_and_publish_ticks(),
+            # self.admin_broker.demo_fetch_and_publish_ticks(),
+            self.admin_broker.fetch_and_publish_ticks(),
             self.strategy.subscribe_to_ticks(),
             self.monitor.subscribe_to_ticks(),
             self.listen_for_trade_signal()

@@ -227,3 +227,4 @@
 # a.running_trades.append(10)
 # logger.info(a.running_trades)
 # logger.info(b.running_trades)
+
