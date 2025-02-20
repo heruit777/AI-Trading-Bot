@@ -9,8 +9,11 @@ import { NextAuthConfig } from "next-auth";
 
 export default {
   providers: [
-    Google,
+    Google({
+      allowDangerousEmailAccountLinking: true,
+    }),
     Github({
+      allowDangerousEmailAccountLinking: true,
       profile: (profile: GitHubProfile) => {
         const name = profile.name?.split(" ");
         return {
@@ -91,6 +94,6 @@ export default {
     },
   },
   pages: {
-    signIn: "/signup"
-  }
+    signIn: "/signup",
+  },
 } satisfies NextAuthConfig;

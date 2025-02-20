@@ -11,6 +11,7 @@ import StrategyStats from "./strategyStats";
 import { DashboardChart } from "./dashboardChart";
 import { Info } from "lucide-react";
 import { getTradeDetails } from "@/app/actions/actions";
+import { Skeleton } from "./skeleton";
 
 export interface TradeDetails {
   transaction_type: string;
@@ -58,35 +59,44 @@ const dummyPnLData = [
 ];
 
 export default function DashboardClientPage() {
-  const { data: session, status, update } = useSession();
+  const { data: session, status } = useSession();
   const [tradeCount, setTradeCount] = useState<number>(0);
   const [todayPnl, setTodayPnl] = useState<number>(0);
+  const [isLoadingTradeDetails, setIsLoadingTradeDetails] = useState(true);
   const [time, setTime] = useState<string>("");
   const [tradeDetails, setTradeDetails] = useState<TradeDetails | null>();
   const [pnlData, setPnlData] = useState<PnlData[]>([]);
 
   useEffect(() => {
+    if (status === "loading") return; // Prevent running until session is ready
+
     const fn = async () => {
+      // setIsLoadingTradeDetails(true);
       const data = await getTradeDetails(session?.user?.id as string);
       setTodayPnl(data ? data.pnl : 0);
+      // setIsLoadingTradeDetails(false);
     };
     fn();
   }, [tradeCount]);
 
   useEffect(() => {
-    update();
+    if (status === "loading") return; // Prevent running until session is ready
+
     const fn = async () => {
       console.log(session?.user?.id);
+      setIsLoadingTradeDetails(true);
       const data = await getTradeDetails(session?.user?.id as string);
+      console.log(data);
       setTradeCount(data ? data.tradeCount : 0);
       setTodayPnl(data ? data.pnl : 0);
+      setIsLoadingTradeDetails(false);
     };
     fn();
     const userId = session?.user?.id; // Get User ID from session
     if (!userId) {
       return;
     }
-    console.log(userId);
+    // console.log(userId);
     let ws: WebSocket;
     try {
       ws = new WebSocket(`ws://127.0.0.1:8000/ws/trade-updates/${userId}`);
@@ -152,44 +162,44 @@ export default function DashboardClientPage() {
       }
     };
   }, [session?.user?.id]);
-  return (
-    <div className="flex flex-col h-full p-10">
-      <div className="h-10 mb-5 flex items-center space-x-10">
-        <div className="border rounded-lg p-2 space-x-2">
-          <span className="font-bold text-sm">Trade Count:</span>
-          <span className="text-slate-400">{tradeCount}</span>
-        </div>
-        <div className="border rounded-lg p-2 space-x-2">
-          <span className="font-bold text-sm">Today's PnL:</span>
-          <span className="text-slate-400">{todayPnl.toFixed(2)}</span>
-        </div>
-      </div>
-      <div className="flex h-full items-center">
-        <DashboardChart pnlData={pnlData} time={time} stockName="Reliance" />
-        {/* <Card className="grow mr-5">
-          <DashboardChart />
-        </Card> */}
-        <Card className="w-80 h-96">
-          {tradeDetails ? (
-            <CurrentTradeContent {...tradeDetails} />
-          ) : (
-            <NotInTradeComponent />
-          )}
-        </Card>
-      </div>
-    </div>
-  );
-}
 
-{
-  /* <div className="text-lg font-bold px-6 py-4">Current Trade Details</div>
-        <CardContent>
-          {tradeDetails ? (
-            <CurrentTradeContent {...tradeDetails} inTrade={inTrade} />
-          ) : (
-            <p>No trade data available</p>
-          )}
-        </CardContent> */
+  return (
+    <>
+      <div className="flex flex-col h-full p-10">
+        <div className="h-10 mb-5 flex items-center space-x-10">
+          <div className="border rounded-lg p-2 space-x-2 flex items-center min-w-36">
+            <div className="font-bold text-sm">Trade Count:</div>
+            {isLoadingTradeDetails ? (
+              <Skeleton className="h-5 w-8 rounded" />
+            ) : (
+              <div className="text-slate-400">{tradeCount}</div>
+            )}
+          </div>
+          <div className="border rounded-lg p-2 space-x-2 flex items-center min-w-48">
+            <div className="font-bold text-sm ">Today's PnL:</div>
+            {isLoadingTradeDetails ? (
+              <Skeleton className="h-5 w-20 rounded" />
+            ) : (
+              <div className="text-slate-400">{todayPnl.toFixed(2)}</div>
+            )}
+          </div>
+        </div>
+        <div className="flex h-full items-center">
+          <DashboardChart pnlData={pnlData} time={time} stockName="Reliance" />
+          {/* <Card className="grow mr-5">
+        <DashboardChart />
+      </Card> */}
+          <Card className="w-80 h-96">
+            {tradeDetails ? (
+              <CurrentTradeContent {...tradeDetails} />
+            ) : (
+              <NotInTradeComponent />
+            )}
+          </Card>
+        </div>
+      </div>
+    </>
+  );
 }
 
 export function NotInTradeComponent() {

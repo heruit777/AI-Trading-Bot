@@ -4,7 +4,6 @@ import { signinSchema } from "@/lib/zod";
 import { prisma } from "@/prisma/prisma";
 import bcryptjs from "bcryptjs";
 import { AuthError } from "next-auth";
-import { redirect } from "next/navigation";
 
 export async function handleGoogleSignin() {
   return await signIn("google", { redirectTo: "/dashboard" });
@@ -25,7 +24,7 @@ export async function handleCredentialsSignin({
     return await signIn("credentials", {
       email,
       password,
-      redirectTo: '/dashboard'
+      redirect: false,
     });
   } catch (error) {
     if (error instanceof AuthError) {

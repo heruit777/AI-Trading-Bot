@@ -146,6 +146,7 @@ interface TradeHistory {
 }
 export async function getTradeHistory(userId: string) {
   try {
+    // await new Promise(res => setTimeout(res, 3000));
     const userWithTrades = await prisma.broker.findUnique({
       where: { userId },
       include: { trades: true },

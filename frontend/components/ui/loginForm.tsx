@@ -12,7 +12,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Button } from "./button";
 import { handleCredentialsSignin } from "@/app/actions/authActions";
 import { useState } from "react";
 import {
@@ -22,8 +21,11 @@ import {
   TooltipTrigger,
 } from "./tooltip";
 import ErrorMessage from "./errorMessage";
+import { useRouter } from "next/navigation";
+import LoadingButton from "./loadingButton";
 
 export default function LoginForm() {
+  const router = useRouter();
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -33,16 +35,24 @@ export default function LoginForm() {
   });
 
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [globalError, setGlobalError] = useState<string>("");
 
   async function onSubmit(values: z.infer<typeof loginSchema>) {
     try {
+      setIsLoading(true);
       const result = await handleCredentialsSignin(values);
+
       if (result?.message) {
         setGlobalError(result.message);
+      } else {
+        router.push("/dashboard");
       }
+      setIsLoading(false);
     } catch (error) {
-      console.log(`An unexpected error occurred. Please try again. ${error}`);
+      // console.log(`An unexpected error occurred. Please try again. ${error}`);
+      console.error(`${error}`);
+      setGlobalError("An unexpected error occurred. Please try again.");
     }
   }
 
@@ -112,9 +122,13 @@ export default function LoginForm() {
               </FormItem>
             )}
           />
-          <Button type="submit" className="w-full">
-            Log in
-          </Button>
+          <LoadingButton
+            type="submit"
+            loading={isLoading}
+            text="Log in"
+            loadingText="Logging in"
+            className="w-full"
+          />
         </form>
       </Form>
     </>
