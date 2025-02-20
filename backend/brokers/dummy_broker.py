@@ -134,7 +134,7 @@ class Dummy_Broker(Broker):
         # may be log it
         market_price = await self.redis_client.hget(config.INSTRUMENT_PRICES_KEY, "Reliance")
         order_id = uuid.uuid4().int % (10**13)
-        logger.info(f'Market Order [{order_id}] placed successfully by Dummy Broker at {float(market_price)}')
+        logger.info(f'Market Order [{order_id}] placed successfully by Dummy Broker at {float(market_price)} for user id [{userId}]')
         return {'status': 'success', 'order_id': order_id, 'user_id': userId, 'price': float(market_price), 'quantity': order['quantity']}
 
     async def send_limit_order(self, userId: str, order: dict):

@@ -93,6 +93,7 @@ export default function DashboardClientPage() {
 
       ws.onopen = () => {
         console.log("Connected to WebSocket");
+        localStorage.setItem("isWebsocketConnected", "1");
       };
 
       ws.onmessage = (event) => {
@@ -133,6 +134,7 @@ export default function DashboardClientPage() {
 
       ws.onclose = () => {
         console.log("WebSocket connection closed");
+        localStorage.setItem("isWebsocketConnected", "0");
       };
     } catch (error) {
       console.error(`Error establishing connection with websocket ${error}`);

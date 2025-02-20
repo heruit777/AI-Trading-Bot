@@ -16,7 +16,7 @@ import backend.brokers.MarketDataFeed_pb2 as pb
 
 load_dotenv(override=True)
 access_token = os.getenv('UPSTOX_ACCESS_TOKEN')
-print(f'{access_token} {os.environ}')
+# print(f'{access_token} {os.environ}')
 
 def get_market_data_feed_authorize(api_version, configuration):
     """Get authorization for market data feed."""

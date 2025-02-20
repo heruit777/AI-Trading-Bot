@@ -11,10 +11,10 @@ from backend.monitoring.monitoring import Monitoring
 from contextlib import asynccontextmanager
 import asyncio
 import json
-from backend.db.db import database
-from typing import Dict
+from backend.db.db import database, get_trade_count_for_today
+import backend.config as config
 from backend.logger_config import logger
-from backend.strategies.strategy1 import MovingAverageStrategy
+
 
 # Good practice to define env varialbes before the app starts and we can use pydantic to validate the env file
 load_dotenv(override=True)
@@ -38,8 +38,7 @@ origins = [
     # "https://yourfrontenddomain.com",  # If you have a production frontend
 ]
 
-# Store WebSocket connections mapped to user IDs
-user_connections: Dict[str, WebSocket] = {}
+
 
 # Adding CORS middleware to FastAPI app
 app.add_middleware(
@@ -147,7 +146,7 @@ async def start_bot():
 
         print(user_broker_map)
         admin_broker = BrokerFactory.create_broker(BrokerType.DUMMY, os.getenv('UPSTOX_ACCESS_TOKEN'), os.getenv('UPSTOX_API_VERSION'))
-        bot = Bot(user_broker_map, MovingAverageStrategy(), admin_broker)
+        bot = Bot(user_broker_map, admin_broker)
         bot.run()
         return {"message": "Brokers initialized and bot started"}
     except Exception as e:
@@ -159,12 +158,12 @@ async def send_pnl_updates(monitor: Monitoring):
     print('Sending Pnl updates to active users')
     while True:
         # print('RUNNING continously')
-        if not user_connections:
+        if not config.user_connections:
             print('No active users')
             await asyncio.sleep(0.1)
             continue
 
-        for user_id, websocket in list(user_connections.items()):
+        for user_id, websocket in list(config.user_connections.items()):
             # ChatGPT gave the following code now improve it
             # print(f'Value of {monitor.user_to_orders}')
             await asyncio.sleep(0.1)
@@ -179,19 +178,19 @@ async def send_pnl_updates(monitor: Monitoring):
                     # print(f'is websocket closed? {websocket.client_state}')
                     await websocket.send_text(json.dumps(order_details))
                 except WebSocketDisconnect:
-                    del user_connections[user_id]
+                    del config.user_connections[user_id]
                     print(f'Removed user [{user_id}] because websocket disconnected')
                 except Exception as e:
-                    # del user_connections[user_id]
+                    # del config.user_connections[user_id]
                     # print(e.with_traceback())
                     print(f'Removed user [{user_id}]')
                     print(f"Error sending PnL to {user_id}: {e}")
             else:
-                del user_connections[user_id]
+                del config.user_connections[user_id]
                 print(f'Removed the user id [{user_id}] as it does not have any trades for him')
                 await websocket.close()
 
-        print(f'Tasking is running and connections: {user_connections}')
+        print(f'Tasking is running and connections: {config.user_connections}')
 
 @app.websocket("/ws/trade-updates/{user_id}")
 async def websocket_endpoint(websocket: WebSocket, user_id: str):
@@ -207,9 +206,16 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
         await websocket.close(code=1008)
         return
     
+    # MAX_TRADES_PER_DAY Limit reached
+    trade_count = await get_trade_count_for_today(user_id)
+    if(trade_count >= config.MAX_NUMBER_OF_TRADES_PER_DAY):
+        print(f"User's MAX TRADE LIMIT reached")
+        await websocket.close()
+        return 
+    
     await websocket.accept()
-    user_connections[user_id] = websocket
-    print(f"User {user_id} connected and Websocket {websocket} and connections : {user_connections}")
+    config.user_connections[user_id] = websocket
+    print(f"User {user_id} connected and Websocket {websocket} and connections : {config.user_connections}")
 
     try:
         while True:
@@ -217,5 +223,5 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
             # await websocket.receive_text()
     except WebSocketDisconnect:
         print(f"User {user_id} disconnected")
-        del user_connections[user_id]  # Remove user on disconnect
+        del config.user_connections[user_id]  # Remove user on disconnect
     

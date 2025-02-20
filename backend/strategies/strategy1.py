@@ -6,7 +6,7 @@ import json
 import asyncio
 import random
 
-class MovingAverageStrategy(TradingStrategy):
+class RandomStrategy(TradingStrategy):
 
     def __init__(self):
         self.redis_client = RedisClient.get_instance()
@@ -35,7 +35,7 @@ class MovingAverageStrategy(TradingStrategy):
 
     async def process_tick_data(self, tick_data: dict):
         ltpc = tick_data['feeds'][config.instrument_keys['Reliance']]['ltpc']
-        logger.info(f'From Moving Average Strategy Module: Reliance ltp: {ltpc['ltp']} and ltq: {ltpc['ltq']}')
+        logger.info(f'From Random Strategy Module: Reliance ltp: {ltpc['ltp']} and ltq: {ltpc['ltq']}')
         signal = self.core_logic(tick_data)
         # print(f'{signal} ltp: {ltpc['ltp']}')
         if signal['type'] == 'hold':

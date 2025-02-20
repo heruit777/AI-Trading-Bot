@@ -104,18 +104,20 @@ export async function createBroker({
 export async function getTradeDetails(userId: string) {
   try {
     if (!userId) return { pnl: 0, tradeCount: 0 };
+    const todayMidnight = new Date();
+    todayMidnight.setUTCHours(0, 0, 0, 0);
+
     const userWithTrades = await prisma.broker.findUnique({
       where: { userId },
-      include: { trades: true },
+      include: { trades: { where: { createdAt: { gte: todayMidnight } } } },
     });
 
-    if (!userWithTrades) return { pnl: 0, tradeCount: 0 };
+    if (!userWithTrades || userWithTrades.trades.length === 0) return { pnl: 0, tradeCount: 0 };
 
     const pnl = userWithTrades.trades.reduce((acc, cur) => {
       return acc + cur.pnl;
     }, 0);
     const tradeCount = userWithTrades.trades.length;
-    console.log(pnl, tradeCount);
     return { pnl, tradeCount };
   } catch (error) {
     console.log(error);

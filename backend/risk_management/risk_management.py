@@ -1,6 +1,8 @@
 import backend.config as config
 from backend.redis_client import RedisClient
 from backend.monitoring.monitoring import Monitoring
+from backend.db.db import get_balance, get_trade_count_for_today
+import backend.config as config
 from backend.logger_config import logger
 
 class Risk_Management():
@@ -13,19 +15,24 @@ class Risk_Management():
         self.monitor = Monitoring.get_instance()
         self.counter = 0
 
-    def analyze(self, balance: float, signal: dict):
+    async def analyze(self, userId: str, signal: dict):
+        balance = await get_balance(userId)
         if not balance:
             logger.info('Zero Balance. Please funding your trading account')
             return None
-
+        
+        # MAX_TRADES_PER_DAY
+        trade_count = await get_trade_count_for_today(userId)
+        if(trade_count >= config.MAX_NUMBER_OF_TRADES_PER_DAY):
+            return 'MAX_TRADE_LIMIT_REACHED'
+        
         trade_type, price, sl, tp, instrument_token = signal['type'], signal['price'], signal['sl'], signal['tp'], signal['instrument_token']
 
         risk_per_share = sl
         risk_per_trade = self.get_trade_amount(balance)
-        qty = int(risk_per_trade/risk_per_share)
+        qty = int(risk_per_trade/risk_per_share) # may be reduce quantity so ensure loss under the limit
         if not qty:
             return None
-        
         order = {
             'transaction_type': trade_type,
             'quantity': qty,
@@ -38,7 +45,7 @@ class Risk_Management():
 
 
     def get_trade_amount(self, balance: float):
-        return balance * (config.PERCENT_MAX_LOSS_PER_DAY / 100)
+        return (balance * (config.PERCENT_MAX_LOSS_PER_DAY / 100)) / config.MAX_NUMBER_OF_TRADES_PER_DAY
 
     # async def validate_signal(self, signal: dict):
     #     # logger.info(f'Received {signal}')

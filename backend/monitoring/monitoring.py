@@ -1,7 +1,7 @@
 from backend.redis_client import RedisClient
 import backend.config as config
 from backend.logger_config import logger
-from backend.db.db import insert_trade_to_db, get_brokerId
+from backend.db.db import insert_trade_to_db, get_brokerId, update_balance
 import json
 from datetime import datetime
 import asyncio
@@ -55,6 +55,7 @@ class Monitoring():
                 asyncio.create_task(self.process_tick_data(json.loads(message['data'])))
 
     def update_history(self, userId: str):
+        # logger.info(f'Orders len = {len(self.user_to_orders[userId])}') => give 1 for each user
         transaction_type, mkt_order, sl_order, tp_order, pnl, now = self.user_to_orders[userId].pop(0) # each user will have atmost 1 trade only.
         # print('Line 44: monitoring.py', mkt_order, sl_order)
         if userId in self.history:
@@ -75,6 +76,12 @@ class Monitoring():
         brokerId = await get_brokerId(userId)
         print(f'Broker [{brokerId}]')
         await insert_trade_to_db(brokerId, 'Reliance', qty, mk_price, ltp, pnl, transaction_type, time)
+        await update_balance(userId, pnl)
+
+    async def close_trade(self, userId: str, qty: int, mk_price: float, ltp: float, 
+                          pnl: float, transaction_type: str, time: datetime):
+        self.update_history(userId)
+        await self.update_db(userId, qty, mk_price, ltp, pnl, transaction_type, time)
 
     async def process_tick_data(self, tick_data: dict):
         ltp = tick_data['feeds'][config.instrument_keys['Reliance']]['ltpc']['ltp']
@@ -93,25 +100,19 @@ class Monitoring():
                 self.user_to_orders[userId][0][4] = (ltp - mk_price) * qty
                 if ltp <= sl_price:
                     print(f'SL triggered for Order Id: [{sl_order['order_id']}], User Id: [{userId}]')
-                    # remove from user_to_orders map and put it in history
-                    self.update_history(userId)
-                    await self.update_db(userId, qty, mk_price, ltp, (ltp - mk_price) * qty, transaction_type, now)
+                    await self.close_trade(userId, qty, mk_price, ltp, (ltp - mk_price) * qty, transaction_type, now)
                 if ltp >= tp_price:
                     print(f'TP hit for Order Id: [{tp_order['order_id']}], User Id: [{userId}]')
-                    self.update_history(userId)
-                    await self.update_db(userId, qty, mk_price, ltp, (ltp - mk_price) * qty, transaction_type, now)
+                    await self.close_trade(userId, qty, mk_price, ltp, (ltp - mk_price) * qty, transaction_type, now)
             else:
                 # update pnl
                 self.user_to_orders[userId][0][4] = (mk_price - ltp) * qty
                 if ltp >= sl_price:
                     print(f'SL triggered for Order Id: [{sl_order['order_id']}], User Id: [{userId}]')
-                    # remove from user_to_orders map and put it in history
-                    self.update_history(userId)
-                    await self.update_db(userId, qty, mk_price, ltp, (mk_price - ltp) * qty, transaction_type, now)
+                    await self.close_trade(userId, qty, mk_price, ltp, (mk_price - ltp) * qty, transaction_type, now)
                 if ltp <= tp_price:
                     print(f'TP hit for Order Id: [{tp_order['order_id']}], User Id: [{userId}]')
-                    self.update_history(userId)
-                    await self.update_db(userId, qty, mk_price, ltp, (mk_price - ltp) * qty, transaction_type, now)
+                    await self.close_trade(userId, qty, mk_price, ltp, (mk_price - ltp) * qty, transaction_type, now)
 
         # logger.info(f'From Monitoring Module: Reliance ltp: {ltpc['ltp']} and ltq: {ltpc['ltq']}')
         # logic to monitor pl of orders

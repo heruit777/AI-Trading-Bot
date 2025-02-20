@@ -9,6 +9,11 @@ instrument_keys = {
     "BHARTI AIRTEL":"NSE_EQ|INE397D01024"
 }
 
+from fastapi import WebSocket
+from typing import Dict
+# Store WebSocket connections mapped to user IDs
+user_connections: Dict[str, WebSocket] = {}
+
 # Define the key for the hash for redis instrument price useful for dummy broker to get current market price
 INSTRUMENT_PRICES_KEY = "instrument_prices"
 

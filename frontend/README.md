@@ -14,17 +14,15 @@ For dummy I don't need anything
 4. harshnivande749@gmail.com with Google
 
 # Todo
-# DashBoard
-1. Charts add red colour when it goes in negative. ✅
-2. Remove the skeleton and keep 'Currently not in trade' component for chart and current details card. ✅
-3. Trade count is doubling (because react calls useEffect twice in development mode) ✅ (React strictmode: false)
-4. Today Pnl ✅
-5. Show time and stock price accurately (get this info from websocket) ✅
-6. Follow the risk management means stop after 5 trades or hit profit target or hit loss target. Show that in frontend [Ignored]
+1. Fix the websocket issue on the dashboard anb Balance disable when websocket is connected.
+2. Sometimes more than 4 trades are executed
+![alt text](image.png)
+# Dashboard
+1. The issue is if I keep on switching tabs of dashboard then the websocket connects and disconnects so make that it doesn't disconnect when switching
 
 # History
 1. Calender view like bingx [Ignored]
-2. Last 10 trades table
+2. All trades table
 
 # Settings
 1. A loader is required and also polish all the frontend. (Checkout typography in shadcn and use consistent color schema)

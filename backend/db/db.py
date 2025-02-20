@@ -44,3 +44,32 @@ async def insert_trade_to_db(brokerId: str, symbol: str, quantity: int,
     except Exception as e:
         print(f'Some error occured while inserting trade {e}')
 
+# get number of trades for the user
+async def get_trade_count_for_today(userId: str) -> int:
+    try:
+        broker = await database['Broker'].find_one({"userId": ObjectId(userId)})
+        if not broker:
+            raise Exception('Cannot find broker for the give user Id')
+        
+        today_midnight = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+
+        trades = await database['Trade'].find({"brokerId": broker['_id'], "createdAt": {"$gte": today_midnight}}).to_list(None)
+        return len(trades)
+    except Exception as e:
+        print(f'Some error occured while fetching trades {e}')
+
+# update balance
+async def update_balance(userId: str, amt: float):
+    try:
+        res = await database['Broker'].update_one({"userId": ObjectId(userId)}, {"$inc": {"balance": amt}})
+        if res.matched_count == 0:
+            print(f'No broker found for userId: {userId}')
+        else:
+            print(f'Balance updated successfully for userId: {userId}')
+    except Exception as e:
+        print(f'Some error occured while updating trades {e}')
+        
+
+if __name__ == "__main__":
+    import asyncio
+    asyncio.run(update_balance('67b36f641542b80fd1037ff4', 69))

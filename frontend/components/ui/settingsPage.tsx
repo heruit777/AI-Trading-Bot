@@ -31,6 +31,7 @@ import { parseNumber } from "@/lib/utils";
 
 export default function SettingsPage() {
   const [loading, setLoading] = useState(false);
+  const [isDisabled, setIsDisabled] = useState<number>(1);
   const { data: session } = useSession();
   const router = useRouter();
 
@@ -83,12 +84,17 @@ export default function SettingsPage() {
   };
 
   useEffect(() => {
+    const status = localStorage.getItem("isWebsocketConnected");
+    if (!status || status === '0') setIsDisabled(0);
+    else setIsDisabled(1);
+  }, []);
+
+  useEffect(() => {
     (async () => {
       const brokerData = await fetchBroker();
-      console.log(`${brokerData?.balance} line 87`);
       if (brokerData) {
         form.setValue("brokerType", brokerData.broker_type as string);
-        form.setValue("balance", brokerData.balance as number);
+        form.setValue("balance", Number(brokerData.balance.toFixed(2)) as number);
         form.setValue("accessToken", brokerData.access_token as string);
         form.setValue("apiKey", brokerData.api_key as string);
         form.setValue("apiSecret", brokerData.api_secret as string);
@@ -132,8 +138,11 @@ export default function SettingsPage() {
                       <Input
                         placeholder="Enter Balance"
                         {...field}
+                        disabled={isDisabled === 1}
                         className="border border-gray-500"
-                        onChange={(e) => field.onChange(parseNumber(e.target.value))}
+                        onChange={(e) =>
+                          field.onChange(parseNumber(e.target.value))
+                        }
                         // ISSUE: Balance can't be float in frontend
                       />
                     </div>

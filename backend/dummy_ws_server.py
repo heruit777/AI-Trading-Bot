@@ -25,9 +25,8 @@ SEND:
 '''
 
 def get_amt():
-    amt = round(random.random(), 2)
-    mul = random.randint(0,1)
-    mul = -1 if mul == 1 else 1
+    amt = round(random.uniform(0, 1), 2)
+    mul = random.choice([-1, 1])
     price = (amt * mul)
     return round(price, 2)
 
