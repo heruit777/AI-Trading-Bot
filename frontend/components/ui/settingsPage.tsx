@@ -85,7 +85,7 @@ export default function SettingsPage() {
 
   useEffect(() => {
     const status = localStorage.getItem("isWebsocketConnected");
-    if (!status || status === '0') setIsDisabled(0);
+    if (!status || status === "0") setIsDisabled(0);
     else setIsDisabled(1);
   }, []);
 
@@ -94,7 +94,10 @@ export default function SettingsPage() {
       const brokerData = await fetchBroker();
       if (brokerData) {
         form.setValue("brokerType", brokerData.broker_type as string);
-        form.setValue("balance", Number(brokerData.balance.toFixed(2)) as number);
+        form.setValue(
+          "balance",
+          Number(brokerData.balance.toFixed(2)) as number
+        );
         form.setValue("accessToken", brokerData.access_token as string);
         form.setValue("apiKey", brokerData.api_key as string);
         form.setValue("apiSecret", brokerData.api_secret as string);
@@ -154,6 +157,11 @@ export default function SettingsPage() {
           )}
           {brokerType !== "dummy" && brokerType !== "" && (
             <>
+              <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-md text-sm">
+                ⚠️ <span className="font-semibold">Note:</span> If Upstox is
+                selected, no trades will be executed.
+              </div>
+
               <div>
                 Refer to the following link to generate the API Key and API
                 Secret:

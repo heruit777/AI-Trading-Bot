@@ -172,7 +172,7 @@ export default function DashboardClientPage() {
             {isLoadingTradeDetails ? (
               <Skeleton className="h-5 w-8 rounded" />
             ) : (
-              <div className="text-slate-400">{tradeCount}</div>
+              <div className="text-primary">{tradeCount}</div>
             )}
           </div>
           <div className="border rounded-lg p-2 space-x-2 flex items-center min-w-48">
@@ -180,7 +180,7 @@ export default function DashboardClientPage() {
             {isLoadingTradeDetails ? (
               <Skeleton className="h-5 w-20 rounded" />
             ) : (
-              <div className="text-slate-400">{todayPnl.toFixed(2)}</div>
+              <div className="text-primary">{todayPnl.toFixed(2)}</div>
             )}
           </div>
         </div>
@@ -204,7 +204,7 @@ export default function DashboardClientPage() {
 
 export function NotInTradeComponent() {
   return (
-    <div className="flex justify-center items-center flex-col h-full w-full rounded-lg bg-[#151414] text-muted-foreground">
+    <div className="flex justify-center items-center flex-col h-full w-full rounded-lg bg-secondary text-muted-foreground">
       <Info />
       <div>Currently not in trade</div>
     </div>

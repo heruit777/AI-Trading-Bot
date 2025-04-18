@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import Navbar from "@/components/ui/navbar";
 import { redirect } from "next/navigation";
 
@@ -19,7 +20,9 @@ export default async function Home() {
           AI-powered trading bot that analyzes the market, executes trades and
           manages risk - so you don't have to 🎉🎉
         </div>
-        <Button variant={"default"}>Get Started Now</Button>
+        <Link href="/login">
+          <Button variant={"default"}>Get Started Now</Button>
+        </Link>
       </div>
     </div>
   );

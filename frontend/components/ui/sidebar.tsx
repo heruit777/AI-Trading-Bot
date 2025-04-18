@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 
 export default function Sidebar() {
   const pathname = usePathname();
-    return (
+  return (
     <div className="flex flex-col border  w-64">
       <Link href="/dashboard">
         <div

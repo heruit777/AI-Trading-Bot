@@ -8,195 +8,206 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { v4 as uuidv4 } from "uuid";
 import { ScrollArea } from "./scroll-area";
 
-const demoTrades = [
-  {
-    id: 1,
-    date: "2025-01-20",
-    stock: "AAPL",
-    type: "Buy",
-    quantity: 10,
-    entryPrice: 150.5,
-    exitPrice: 155.3,
-    pnl: "+48.00",
-  },
-  {
-    id: 2,
-    date: "2025-01-19",
-    stock: "TSLA",
-    type: "Sell",
-    quantity: 5,
-    entryPrice: 700.0,
-    exitPrice: 690.0,
-    pnl: "-50.00",
-  },
-  {
-    id: 3,
-    date: "2025-01-20",
-    stock: "AAPL",
-    type: "Buy",
-    quantity: 10,
-    entryPrice: 150.5,
-    exitPrice: 155.3,
-    pnl: "+48.00",
-  },
-  {
-    id: 4,
-    date: "2025-01-19",
-    stock: "TSLA",
-    type: "Sell",
-    quantity: 5,
-    entryPrice: 700.0,
-    exitPrice: 690.0,
-    pnl: "-50.00",
-  },
-  {
-    id: 5,
-    date: "2025-01-20",
-    stock: "AAPL",
-    type: "Buy",
-    quantity: 10,
-    entryPrice: 150.5,
-    exitPrice: 155.3,
-    pnl: "+48.00",
-  },
-  {
-    id: 6,
-    date: "2025-01-19",
-    stock: "TSLA",
-    type: "Sell",
-    quantity: 5,
-    entryPrice: 700.0,
-    exitPrice: 690.0,
-    pnl: "-50.00",
-  },
-  {
-    id: 1,
-    date: "2025-01-20",
-    stock: "AAPL",
-    type: "Buy",
-    quantity: 10,
-    entryPrice: 150.5,
-    exitPrice: 155.3,
-    pnl: "+48.00",
-  },
-  {
-    id: 2,
-    date: "2025-01-19",
-    stock: "TSLA",
-    type: "Sell",
-    quantity: 5,
-    entryPrice: 700.0,
-    exitPrice: 690.0,
-    pnl: "-50.00",
-  },
-  {
-    id: 3,
-    date: "2025-01-20",
-    stock: "AAPL",
-    type: "Buy",
-    quantity: 10,
-    entryPrice: 150.5,
-    exitPrice: 155.3,
-    pnl: "+48.00",
-  },
-  {
-    id: 4,
-    date: "2025-01-19",
-    stock: "TSLA",
-    type: "Sell",
-    quantity: 5,
-    entryPrice: 700.0,
-    exitPrice: 690.0,
-    pnl: "-50.00",
-  },
-  {
-    id: 5,
-    date: "2025-01-20",
-    stock: "AAPL",
-    type: "Buy",
-    quantity: 10,
-    entryPrice: 150.5,
-    exitPrice: 155.3,
-    pnl: "+48.00",
-  },
-  {
-    id: 6,
-    date: "2025-01-19",
-    stock: "TSLA",
-    type: "Sell",
-    quantity: 5,
-    entryPrice: 700.0,
-    exitPrice: 690.0,
-    pnl: "-50.00",
-  },
-  {
-    id: 1,
-    date: "2025-01-20",
-    stock: "AAPL",
-    type: "Buy",
-    quantity: 10,
-    entryPrice: 150.5,
-    exitPrice: 155.3,
-    pnl: "+48.00",
-  },
-  {
-    id: 2,
-    date: "2025-01-19",
-    stock: "TSLA",
-    type: "Sell",
-    quantity: 5,
-    entryPrice: 700.0,
-    exitPrice: 690.0,
-    pnl: "-50.00",
-  },
-  {
-    id: 3,
-    date: "2025-01-20",
-    stock: "AAPL",
-    type: "Buy",
-    quantity: 10,
-    entryPrice: 150.5,
-    exitPrice: 155.3,
-    pnl: "+48.00",
-  },
-  {
-    id: 4,
-    date: "2025-01-19",
-    stock: "TSLA",
-    type: "Sell",
-    quantity: 5,
-    entryPrice: 700.0,
-    exitPrice: 690.0,
-    pnl: "-50.00",
-  },
-  {
-    id: 5,
-    date: "2025-01-20",
-    stock: "AAPL",
-    type: "Buy",
-    quantity: 10,
-    entryPrice: 150.5,
-    exitPrice: 155.3,
-    pnl: "+48.00",
-  },
-  {
-    id: 6,
-    date: "2025-01-19",
-    stock: "TSLA",
-    type: "Sell",
-    quantity: 5,
-    entryPrice: 700.0,
-    exitPrice: 690.0,
-    pnl: "-50.00",
-  },
-];
+// const demoTrades = [
+//   {
+//     id: 1,
+//     date: "2025-01-20",
+//     stock: "AAPL",
+//     type: "Buy",
+//     quantity: 10,
+//     entryPrice: 150.5,
+//     exitPrice: 155.3,
+//     pnl: "+48.00",
+//   },
+//   {
+//     id: 2,
+//     date: "2025-01-19",
+//     stock: "TSLA",
+//     type: "Sell",
+//     quantity: 5,
+//     entryPrice: 700.0,
+//     exitPrice: 690.0,
+//     pnl: "-50.00",
+//   },
+//   {
+//     id: 3,
+//     date: "2025-01-20",
+//     stock: "AAPL",
+//     type: "Buy",
+//     quantity: 10,
+//     entryPrice: 150.5,
+//     exitPrice: 155.3,
+//     pnl: "+48.00",
+//   },
+//   {
+//     id: 4,
+//     date: "2025-01-19",
+//     stock: "TSLA",
+//     type: "Sell",
+//     quantity: 5,
+//     entryPrice: 700.0,
+//     exitPrice: 690.0,
+//     pnl: "-50.00",
+//   },
+//   {
+//     id: 5,
+//     date: "2025-01-20",
+//     stock: "AAPL",
+//     type: "Buy",
+//     quantity: 10,
+//     entryPrice: 150.5,
+//     exitPrice: 155.3,
+//     pnl: "+48.00",
+//   },
+//   {
+//     id: 6,
+//     date: "2025-01-19",
+//     stock: "TSLA",
+//     type: "Sell",
+//     quantity: 5,
+//     entryPrice: 700.0,
+//     exitPrice: 690.0,
+//     pnl: "-50.00",
+//   },
+//   {
+//     id: 1,
+//     date: "2025-01-20",
+//     stock: "AAPL",
+//     type: "Buy",
+//     quantity: 10,
+//     entryPrice: 150.5,
+//     exitPrice: 155.3,
+//     pnl: "+48.00",
+//   },
+//   {
+//     id: 2,
+//     date: "2025-01-19",
+//     stock: "TSLA",
+//     type: "Sell",
+//     quantity: 5,
+//     entryPrice: 700.0,
+//     exitPrice: 690.0,
+//     pnl: "-50.00",
+//   },
+//   {
+//     id: 3,
+//     date: "2025-01-20",
+//     stock: "AAPL",
+//     type: "Buy",
+//     quantity: 10,
+//     entryPrice: 150.5,
+//     exitPrice: 155.3,
+//     pnl: "+48.00",
+//   },
+//   {
+//     id: 4,
+//     date: "2025-01-19",
+//     stock: "TSLA",
+//     type: "Sell",
+//     quantity: 5,
+//     entryPrice: 700.0,
+//     exitPrice: 690.0,
+//     pnl: "-50.00",
+//   },
+//   {
+//     id: 5,
+//     date: "2025-01-20",
+//     stock: "AAPL",
+//     type: "Buy",
+//     quantity: 10,
+//     entryPrice: 150.5,
+//     exitPrice: 155.3,
+//     pnl: "+48.00",
+//   },
+//   {
+//     id: 6,
+//     date: "2025-01-19",
+//     stock: "TSLA",
+//     type: "Sell",
+//     quantity: 5,
+//     entryPrice: 700.0,
+//     exitPrice: 690.0,
+//     pnl: "-50.00",
+//   },
+//   {
+//     id: 1,
+//     date: "2025-01-20",
+//     stock: "AAPL",
+//     type: "Buy",
+//     quantity: 10,
+//     entryPrice: 150.5,
+//     exitPrice: 155.3,
+//     pnl: "+48.00",
+//   },
+//   {
+//     id: 2,
+//     date: "2025-01-19",
+//     stock: "TSLA",
+//     type: "Sell",
+//     quantity: 5,
+//     entryPrice: 700.0,
+//     exitPrice: 690.0,
+//     pnl: "-50.00",
+//   },
+//   {
+//     id: 3,
+//     date: "2025-01-20",
+//     stock: "AAPL",
+//     type: "Buy",
+//     quantity: 10,
+//     entryPrice: 150.5,
+//     exitPrice: 155.3,
+//     pnl: "+48.00",
+//   },
+//   {
+//     id: 4,
+//     date: "2025-01-19",
+//     stock: "TSLA",
+//     type: "Sell",
+//     quantity: 5,
+//     entryPrice: 700.0,
+//     exitPrice: 690.0,
+//     pnl: "-50.00",
+//   },
+//   {
+//     id: 5,
+//     date: "2025-01-20",
+//     stock: "AAPL",
+//     type: "Buy",
+//     quantity: 10,
+//     entryPrice: 150.5,
+//     exitPrice: 155.3,
+//     pnl: "+48.00",
+//   },
+//   {
+//     id: 6,
+//     date: "2025-01-19",
+//     stock: "TSLA",
+//     type: "Sell",
+//     quantity: 5,
+//     entryPrice: 700.0,
+//     exitPrice: 690.0,
+//     pnl: "-50.00",
+//   },
+// ];
 
 export async function HistoryPage() {
   const session = await auth();
   const trades = await getTradeHistory(session?.user?.id as string);
   // const trades = demoTrades;
+  const tableHeaders = {
+    "id": "No.",
+    "created": "Order Time",
+    "stockName": "Stock Name",
+    "quantity": "Quantity",
+    "entry_price": "Entry Price",
+    "exit_price": "Exit Price",
+    "tradeType": "Type",
+    "pnl": "PnL",
+  }
   return (
     <div className="w-full px-10 pt-10">
       <ScrollArea className="h-[600px] rounded-md border">
@@ -205,19 +216,19 @@ export async function HistoryPage() {
             <TableHeader>
               <TableRow>
                 {Object.entries(trades[0]).map(([key, value]) => {
-                  return <TableHead key={key}>{key}</TableHead>;
+                  return <TableHead key={key}>{tableHeaders[key]}</TableHead>;
                 })}
               </TableRow>
             </TableHeader>
             <TableBody>
               {trades.map((key, value) => {
                 return (
-                  <TableRow key={key.id}>
+                  <TableRow key={uuidv4()}>
                     {Object.entries(key).map(([k, v]) => {
                       if (k === "pnl")
                         return (
                           <TableCell
-                            key={v?.toString()}
+                            key={uuidv4()}
                             className={`${
                               Number(v) < 0 ? "text-red-400" : "text-green-400"
                             }`}
@@ -226,7 +237,7 @@ export async function HistoryPage() {
                           </TableCell>
                         );
                       return (
-                        <TableCell key={v.toString()}>{v.toString()}</TableCell>
+                        <TableCell key={uuidv4()}>{v.toString()}</TableCell>
                       );
                     })}
                   </TableRow>

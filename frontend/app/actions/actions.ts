@@ -149,7 +149,7 @@ export async function getTradeHistory(userId: string) {
     // await new Promise(res => setTimeout(res, 3000));
     const userWithTrades = await prisma.broker.findUnique({
       where: { userId },
-      include: { trades: true },
+      include: { trades: {orderBy: {createdAt: 'desc'}} },
     });
     if (!userWithTrades) return [];
     // const data: TradeHistory[] = []
@@ -157,6 +157,7 @@ export async function getTradeHistory(userId: string) {
       return {
         id: index + 1,
         created: new Date(val.createdAt).toUTCString(),
+        stockName: "Reliance",
         quantity: val.quantity,
         entry_price: val.entry_price,
         exit_price: val.exit_price,

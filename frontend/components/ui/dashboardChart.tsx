@@ -55,7 +55,15 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function DashboardChart({ pnlData, time, stockName }: { pnlData: PnlData[], time: string, stockName: string }) {
+export function DashboardChart({
+  pnlData,
+  time,
+  stockName,
+}: {
+  pnlData: PnlData[];
+  time: string;
+  stockName: string;
+}) {
   const gradientOffset = () => {
     const dataMax = Math.max(...pnlData.map((i) => i.pnl));
     const dataMin = Math.min(...pnlData.map((i) => i.pnl));
@@ -75,7 +83,7 @@ export function DashboardChart({ pnlData, time, stockName }: { pnlData: PnlData[
       {pnlData.length <= 0 ? (
         <NotInTradeComponent />
       ) : (
-        <CardHeader>
+        <CardHeader className="h-96">
           <CardTitle>PnL Chart - Current Trade</CardTitle>
           <CardDescription>
             Trade executed at {time} on {stockName}

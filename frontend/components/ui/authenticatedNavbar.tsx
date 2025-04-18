@@ -9,18 +9,20 @@ import AccountSelect from "./accountSelect";
 export default async function AuthenticatedNavbar() {
   const session = await auth();
   return (
-    <div className="flex justify-between items-center border border-b-2 h-16 px-4 text-base">
+    <div className="flex justify-between items-center border border-b-2 min-h-16 px-4 text-base">
       <div className="flex items-center space-x-5">
         <AlignJustifyIcon className="hover:cursor-pointer md:hidden" />
-        <div className="md:text-2xl">AI Trading Bot</div>
+        <Link href="/dashboard">
+          <div className="md:text-2xl font-extrabold">AI TRADING BOT</div>
+        </Link>
       </div>
       <div className="flex justify-around items-center space-x-8">
         {/* Can add icons here for the mobile */}
-        <AccountSelect />
+        {/* <AccountSelect /> */}
 
         <div className="hidden sm:block sm:space-x-4">
           {session?.user ? (
-            <Button variant={"secondary"} onClick={handleSignout}>
+            <Button variant={"default"} onClick={handleSignout}>
               Sign Out
             </Button>
           ) : (

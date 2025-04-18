@@ -11,18 +11,20 @@ export default async function Navbar() {
     <div className="flex justify-between items-center border border-b-2 h-16 px-4 text-base">
       <div className="flex items-center space-x-5">
         <AlignJustifyIcon className="hover:cursor-pointer md:hidden" />
-        <div className="md:text-2xl">AI Trading Bot</div>
+        <Link href="/">
+          <div className="md:text-2xl font-extrabold">AI TRADING BOT</div>
+        </Link>
       </div>
       <div className="flex justify-around items-center space-x-8">
         {/* Can add icons here for the mobile */}
-        <div className="hidden md:text-base md:text-gray-300 md:flex md:justify-around md:space-x-2">
+        {/* <div className="hidden md:text-base md:text-gray-300 md:flex md:justify-around md:space-x-2">
           <Link href="/docs1" className="hover:underline">
             About
           </Link>
           <Link href="/docs1" className="hover:underline">
             Broker Support
           </Link>
-        </div>
+        </div> */}
         <div className="hidden sm:block sm:space-x-4">
           {session?.user ? (
             <Button variant={"secondary"} onClick={handleSignout}>
